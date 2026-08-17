@@ -1,0 +1,1881 @@
+# TPT Process: Open Source Design Document
+
+**Organization:** TPT Solutions (`tpt-solutions`)
+**Repository:** `tpt-process`
+**Crate Prefix:** `tpt-proc-*`
+**License:** `MIT OR Apache-2.0`
+**Status:** Open Source Master Plan
+**Philosophy:** 100% Open Source. Chemical & Process Engineering Without Vendor Lock-in. No GPL Traps. No Desktop Monopolies.
+
+---
+
+## 1. Open Source Declaration
+
+`tpt-process` is a fully open-source, MIT-licensed computational engine for **chemical and process engineering**: thermodynamics, fluid flow, heat transfer, separations, reaction engineering, and flowsheet simulation. Every crate, every property package, and every solver is freely available under MIT OR Apache-2.0.
+
+### Why Fully Open Source for Process Engineering?
+
+The chemical process simulation space is one of the most locked-down industries in engineering software:
+
+1. **The Desktop Monopoly:** Aspen HYSYS, Aspen Plus, ChemCAD, PRO/II, and gPROMS cost $30k-$100k+ per seat. They are closed-source, Windows-only, and tightly coupled to proprietary thermodynamic databanks.
+2. **The Scripting Trap:** Open-source alternatives (CoolProp, Cantera, DWSIM) are bound to C++, C#, or Python, making them too slow for real-time control and impossible to compile into standalone, browser-based tools.
+3. **The Databank Ransom:** The real value in process simulators is the thermodynamic property databanks. Incumbents charge recurring licensing fees for access to data that should be a public good.
+
+`tpt-process` breaks all three locks. It provides a pure-Rust, MIT-licensed thermodynamic property engine, flowsheet solver, and unit operation library. Because it compiles to WebAssembly, chemical engineers can run flash calculations, heat exchanger ratings, and distillation shortcuts directly in the browser or on edge controllers — with no desktop license and no cloud dependency.
+
+### Open Source Governance
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                   TPT PROCESS GOVERNANCE                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  License:        MIT OR Apache-2.0 (dual)                   │
+│  Contributions:  MIT OR Apache-2.0 (CLA-free via DCO)       │
+│  Trademark:      "TPT Process" name reserved by TPT         │
+│  Governance:     Benevolent Dictator + RFC process          │
+│  Roadmap:        Public GitHub Projects board               │
+│  Releases:       SemVer, 6-week cadence                     │
+│  Security:       SECURITY.md, private disclosure            │
+│  Standards:      ASPEN, HYSYS import, CAPE-OPEN, P&ID      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2. Executive Vision: The Process Integrator
+
+`tpt-process` is the **flowsheet brain** of the TPT ecosystem. It converts raw material properties into complete plant designs, energy balances, and economic analyses.
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                  THE PROCESS ENGINEERING STACK                │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │                   tpt-process                          │  │
+│  │  Thermodynamics │ Fluid Flow │ Heat Transfer │ Reactors│ │
+│  └──────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│     Consumes: material properties, reaction kinetics        │
+│     Produces: plant designs, energy balances, economics     │
+│                           │                                 │
+│     ┌─────────────┬───────┴────────┬─────────────┐         │
+│     ▼             ▼                ▼             ▼         │
+│  ┌────────┐  ┌──────────┐   ┌──────────┐  ┌─────────┐    │
+│  │ tpt-   │  │ tpt-     │   │ tpt-     │  │ tpt-    │    │
+│  │ energy │  │ materials│   │ medical  │  │ construct│   │
+│  │ heat   │  │ chem     │   │ pharma   │  │ plant    │    │
+│  │ integra│  │ manuf.   │   │ batch    │  │ design   │    │
+│  └────────┘  └──────────┘   └──────────┘  └─────────┘    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Why Rust for Process Engineering?
+
+| Requirement | Rust Advantage |
+|---|---|
+| Real-time plant control | Microsecond flash calculations for MPC loops |
+| Massive flowsheets | Fearless concurrency for parallel unit operations |
+| Browser-based design | WASM compilation for interactive PFD tools |
+| Enterprise deployment | MIT-only chain, no GPL audit risk for EPC firms |
+| Memory safety | No segfaults in long-running dynamic simulations |
+| Embedded edge | `no_std` controllers for DCS/PLC integration |
+| Reproducibility | Deterministic solvers for auditable designs |
+
+---
+
+## 3. Substrate Integration Map
+
+```text
+tpt-math
+├── tpt-math-linalg-fixed     → Sparse Jacobians for flowsheet solvers
+├── tpt-math-optimize-general → Process optimization, NLP, MILP
+├── tpt-math-prob-dist        → Uncertainty quantification, Monte Carlo
+└── tpt-math-signal-filter    → Kalman filtering for state estimation
+
+tpt-engineering
+├── Thermodynamics            → Property package foundation
+├── Fluid mechanics           → Pipe flow, pressure drop
+├── Heat transfer             → Convection correlations
+└── Material properties       → Physical property data
+
+tpt-science
+├── Chemistry                 → Reaction kinetics, equilibrium
+├── Thermodynamics            → Equations of state, activity models
+├── Transport phenomena       → Diffusion, mass transfer
+└── Combustion                → Fired equipment, furnaces
+
+tpt-fem
+└── (Used for CFD mixing, heat exchanger detailed design)
+
+Cross-Repo Integration:
+├── → tpt-energy              → Heat integration, utility optimization
+├── → tpt-materials           → Chemical manufacturing processes
+├── → tpt-electronics         → Semiconductor fab processes
+├── → tpt-medical             → Pharmaceutical batch processes
+└── → tpt-construction        → Plant layout and construction
+```
+
+---
+
+## 4. Workspace Layout
+
+```text
+tpt-process/
+├── Cargo.toml
+├── LICENSE-MIT
+├── LICENSE-APACHE
+├── README.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CODE_OF_CONDUCT.md
+├── CHANGELOG.md
+├── deny.toml
+├── rustfmt.toml
+├── clippy.toml
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   ├── license.yml
+│   │   ├── benchmark.yml
+│   │   ├── docs.yml
+│   │   └── release.yml
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── crates/
+│   ├── core/
+│   │   ├── tpt-proc-core/
+│   │   ├── tpt-proc-topology/
+│   │   ├── tpt-proc-units/
+│   │   └── tpt-proc-wasm/
+│   ├── thermodynamics/
+│   │   ├── tpt-proc-thermo-core/
+│   │   ├── tpt-proc-thermo-eos/
+│   │   ├── tpt-proc-thermo-activity/
+│   │   ├── tpt-proc-thermo-phase/
+│   │   └── tpt-proc-thermo-database/
+│   ├── fluid-flow/
+│   │   ├── tpt-proc-fluid/
+│   │   ├── tpt-proc-pumps/
+│   │   ├── tpt-proc-compressors/
+│   │   ├── tpt-proc-valves/
+│   │   └── tpt-proc-network/
+│   ├── heat-transfer/
+│   │   ├── tpt-proc-heat-transfer/
+│   │   ├── tpt-proc-heat-exchangers/
+│   │   ├── tpt-proc-heat-network/
+│   │   └── tpt-proc-fired-equipment/
+│   ├── separations/
+│   │   ├── tpt-proc-distillation/
+│   │   ├── tpt-proc-absorption/
+│   │   ├── tpt-proc-extraction/
+│   │   ├── tpt-proc-membranes/
+│   │   └── tpt-proc-crystallization/
+│   ├── reaction/
+│   │   ├── tpt-proc-reaction/
+│   │   ├── tpt-proc-reactors/
+│   │   └── tpt-proc-catalysis/
+│   ├── simulation/
+│   │   ├── tpt-proc-flowsheet/
+│   │   ├── tpt-proc-mass-balance/
+│   │   ├── tpt-proc-energy-balance/
+│   │   └── tpt-proc-optimization/
+│   ├── dynamics/
+│   │   ├── tpt-proc-dynamics/
+│   │   └── tpt-proc-control/
+│   ├── applications/
+│   │   ├── tpt-proc-water/
+│   │   ├── tpt-proc-hvac/
+│   │   ├── tpt-proc-pharma/
+│   │   ├── tpt-proc-refining/
+│   │   └── tpt-proc-hydrogen/
+│   └── data/
+│       ├── tpt-proc-database/
+│       ├── tpt-proc-pfd/
+│       └── tpt-proc-economics/
+├── examples/
+│   ├── flash-calculation/
+│   ├── heat-exchanger-rating/
+│   ├── binary-distillation/
+│   ├── cstr-reactor/
+│   ├── pinch-analysis/
+│   ├── hvac-psychrometrics/
+│   └── water-treatment-plant/
+├── test-data/
+│   ├── components/
+│   ├── mixtures/
+│   ├── vle-data/
+│   └── golden/
+├── benches/
+│   ├── pr-flash.rs
+│   ├── distillation-mesh.rs
+│   ├── network-solver.rs
+│   └── heat-exchanger-rating.rs
+├── docs/
+│   ├── book/
+│   ├── rfc/
+│   └── api/
+└── rfcs/
+    ├── 0001-peng-robinson-eos.md
+    ├── 0002-flash-calculations.md
+    ├── 0003-flowsheet-solver.md
+    └── 0004-pinch-analysis.md
+```
+
+---
+
+## 5. Crate Taxonomy (Complete)
+
+### Domain 1: Core & Topology
+
+#### `tpt-proc-core`
+
+Fundamental domain types for process engineering.
+
+```rust
+pub struct MaterialStream {
+    pub id: StreamId,
+    pub name: String,
+    pub temperature: f64,           // K
+    pub pressure: f64,              // Pa
+    pub flow_rate: FlowRate,
+    pub composition: Composition,
+    pub phase: PhaseState,
+    pub properties: StreamProperties,
+}
+
+pub enum FlowRate {
+    Mass(f64),                      // kg/s
+    Molar(f64),                     // mol/s
+    Volumetric(f64),                // m³/s
+}
+
+pub struct Composition {
+    pub components: HashMap<ComponentId, f64>,  // mole fractions
+    pub basis: CompositionBasis,
+}
+
+pub enum PhaseState {
+    Liquid,
+    Vapor,
+    TwoPhase { vapor_fraction: f64 },
+    Supercritical,
+    Solid,
+}
+
+pub struct StreamProperties {
+    pub enthalpy: f64,              // J/mol
+    pub entropy: f64,               // J/(mol·K)
+    pub density: f64,               // kg/m³
+    pub viscosity: f64,             // Pa·s
+    pub thermal_conductivity: f64,  // W/(m·K)
+    pub heat_capacity: f64,         // J/(mol·K)
+    pub compressibility: f64,       // Z factor
+}
+
+pub enum UnitOperation {
+    Mixer { id: UnitId },
+    Splitter { id: UnitId, split_ratios: Vec<f64> },
+    HeatExchanger { id: UnitId, config: HeatExchangerConfig },
+    Pump { id: UnitId, config: PumpConfig },
+    Compressor { id: UnitId, config: CompressorConfig },
+    Valve { id: UnitId, config: ValveConfig },
+    Reactor { id: UnitId, config: ReactorConfig },
+    DistillationColumn { id: UnitId, config: ColumnConfig },
+    Flash { id: UnitId },
+    Absorber { id: UnitId, config: AbsorberConfig },
+    Crystallizer { id: UnitId, config: CrystallizerConfig },
+}
+
+pub struct Flowsheet {
+    pub id: FlowsheetId,
+    pub name: String,
+    pub streams: HashMap<StreamId, MaterialStream>,
+    pub units: HashMap<UnitId, UnitOperation>,
+    pub connections: Vec<Connection>,
+    pub property_package: PropertyPackage,
+}
+
+pub struct Connection {
+    pub from: (UnitId, PortId),
+    pub to: (UnitId, PortId),
+    pub stream: StreamId,
+}
+```
+
+#### `tpt-proc-topology`
+
+Process flow diagram graph analysis.
+
+```rust
+pub struct ProcessGraph {
+    pub adjacency: HashMap<UnitId, Vec<UnitId>>,
+    pub streams: HashMap<StreamId, (UnitId, UnitId)>,
+}
+
+impl ProcessGraph {
+    pub fn find_recycles(&self) -> Vec<Vec<UnitId>> {
+        // Detect recycle loops using DFS cycle detection
+    }
+    
+    pub fn topological_order(&self) -> Option<Vec<UnitId>> {
+        // Return units in execution order (for sequential modular)
+        // Returns None if cycles exist
+    }
+    
+    pub fn tear_streams(&self) -> Vec<StreamId> {
+        // Identify optimal tear streams to break recycle loops
+    }
+    
+    pub fn connected_components(&self) -> Vec<Vec<UnitId>> {
+        // Find independent sections of the flowsheet
+    }
+}
+```
+
+---
+
+### Domain 2: Thermodynamics
+
+#### `tpt-proc-thermo-core`
+
+Thermodynamic property framework.
+
+```rust
+pub struct PropertyPackage {
+    pub components: Vec<Component>,
+    pub eos: Option<EquationOfState>,
+    pub activity_model: Option<ActivityModel>,
+    pub property_methods: PropertyMethods,
+}
+
+pub struct Component {
+    pub id: ComponentId,
+    pub name: String,
+    pub cas_number: String,
+    pub molecular_weight: f64,      // kg/mol
+    pub critical_temperature: f64,  // K
+    pub critical_pressure: f64,     // Pa
+    pub critical_volume: f64,       // m³/mol
+    pub acentric_factor: f64,
+    pub normal_boiling_point: f64,  // K
+    pub ideal_gas_cp: CpCorrelation,
+}
+
+pub enum PropertyMethods {
+    IdealGas,
+    CubicEos { model: CubicEosType },
+    ActivityCoefficient { model: ActivityModelType },
+    HenrysLaw,
+}
+
+impl PropertyPackage {
+    pub fn fugacity_coefficient(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        pressure: f64,
+        phase: PhaseState,
+    ) -> Vec<f64> {
+        // Calculate fugacity coefficients for each component
+    }
+    
+    pub fn enthalpy(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        pressure: f64,
+        phase: PhaseState,
+    ) -> f64 {
+        // Calculate mixture enthalpy including departure function
+    }
+    
+    pub fn k_values(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        pressure: f64,
+    ) -> Vec<f64> {
+        // Calculate equilibrium ratios K_i = y_i/x_i
+    }
+}
+```
+
+#### `tpt-proc-thermo-eos`
+
+Equations of State.
+
+```rust
+pub enum EquationOfState {
+    IdealGas,
+    PengRobinson { mixing_rule: MixingRule },
+    SoaveRedlichKwong { mixing_rule: MixingRule },
+    BenedictWebbRubin,
+    CubicPlusAssociation,
+}
+
+pub enum MixingRule {
+    VanDerWaals,
+    HuronVidal { activity_model: ActivityModel },
+    WongSandler { activity_model: ActivityModel },
+}
+
+pub struct PengRobinson {
+    pub components: Vec<Component>,
+    pub binary_interaction: HashMap<(ComponentId, ComponentId), f64>,
+}
+
+impl PengRobinson {
+    pub fn pressure(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        molar_volume: f64,
+    ) -> f64 {
+        // P = RT/(v-b) - a·α/(v² + 2bv - b²)
+        let a = self.a_parameter(composition, temperature);
+        let b = self.b_parameter(composition);
+        let r = 8.314462618;
+        
+        r * temperature / (molar_volume - b)
+            - a / (molar_volume.powi(2) + 2.0 * b * molar_volume - b.powi(2))
+    }
+    
+    pub fn a_parameter(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+    ) -> f64 {
+        // a = ΣΣ x_i·x_j·√(a_i·a_j)·(1-k_ij)
+        // where a_i = 0.45724·R²·Tc²/Pc·α_i
+    }
+    
+    pub fn b_parameter(&self, composition: &Composition) -> f64 {
+        // b = Σ x_i·b_i
+        // where b_i = 0.07780·R·Tc/Pc
+    }
+    
+    pub fn compressibility_factor(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        pressure: f64,
+    ) -> Vec<f64> {
+        // Solve cubic: Z³ + c2·Z² + c1·Z + c0 = 0
+        // Return real roots (may be 1 or 3)
+    }
+    
+    pub fn fugacity_coefficient(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+        pressure: f64,
+        phase: PhaseState,
+    ) -> Vec<f64> {
+        // ln(φ_i) = (b_i/b)(Z-1) - ln(Z-B)
+        //          - A/(2√2·B)·(2Σx_j·a_ij/a - b_i/b)
+        //          · ln[(Z+2.414B)/(Z-0.414B)]
+    }
+}
+```
+
+#### `tpt-proc-thermo-activity`
+
+Activity coefficient models.
+
+```rust
+pub enum ActivityModel {
+    Ideal,
+    Wilson { parameters: WilsonParams },
+    Nrtl { parameters: NrtlParams },
+    UNIQUAC { parameters: UNIQUACParams },
+    UNIFAC { groups: Vec<FunctionalGroup> },
+}
+
+pub struct NrtlParams {
+    pub tau: HashMap<(ComponentId, ComponentId), f64>,
+    pub alpha: HashMap<(ComponentId, ComponentId), f64>,
+}
+
+impl ActivityModel {
+    pub fn activity_coefficients(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+    ) -> Vec<f64> {
+        match self {
+            ActivityModel::Ideal => vec![1.0; composition.components.len()],
+            ActivityModel::Wilson { parameters } => {
+                self.wilson_gamma(composition, temperature, parameters)
+            }
+            ActivityModel::Nrtl { parameters } => {
+                self.nrtl_gamma(composition, temperature, parameters)
+            }
+            ActivityModel::UNIQUAC { parameters } => {
+                self.uniquac_gamma(composition, temperature, parameters)
+            }
+            ActivityModel::UNIFAC { groups } => {
+                self.unifac_gamma(composition, temperature, groups)
+            }
+        }
+    }
+}
+```
+
+#### `tpt-proc-thermo-phase`
+
+Phase equilibrium and flash calculations.
+
+```rust
+pub struct FlashSolver {
+    pub property_package: PropertyPackage,
+}
+
+pub struct FlashSpec {
+    pub temperature: Option<f64>,
+    pub pressure: Option<f64>,
+    pub enthalpy: Option<f64>,
+    pub entropy: Option<f64>,
+    pub vapor_fraction: Option<f64>,
+}
+
+pub struct FlashResult {
+    pub temperature: f64,
+    pub pressure: f64,
+    pub vapor_fraction: f64,
+    pub liquid_composition: Composition,
+    pub vapor_composition: Composition,
+    pub k_values: Vec<f64>,
+}
+
+impl FlashSolver {
+    pub fn pt_flash(
+        &self,
+        feed: &Composition,
+        temperature: f64,
+        pressure: f64,
+    ) -> FlashResult {
+        // 1. Calculate K-values from property package
+        // 2. Solve Rachford-Rice for vapor fraction β
+        // 3. Calculate liquid and vapor compositions
+        // 4. Iterate until K-values converge
+        
+        let mut k_values = self.property_package.k_values(feed, temperature, pressure);
+        let mut beta = self.initial_beta_estimate(feed, &k_values);
+        
+        for _ in 0..100 {
+            // Solve Rachford-Rice: Σ z_i(K_i-1)/(1+β(K_i-1)) = 0
+            beta = self.rachford_rice(feed, &k_values, beta);
+            
+            let (x, y) = self.phase_compositions(feed, &k_values, beta);
+            let new_k = self.property_package.k_values(feed, temperature, pressure);
+            
+            if converged(&k_values, &new_k) {
+                return FlashResult { /* ... */ };
+            }
+            k_values = new_k;
+        }
+        
+        panic!("Flash calculation did not converge");
+    }
+    
+    fn rachford_rice(
+        &self,
+        feed: &Composition,
+        k_values: &[f64],
+        beta_guess: f64,
+    ) -> f64 {
+        // Newton-Raphson on Rachford-Rice equation
+        let mut beta = beta_guess;
+        for _ in 0..50 {
+            let mut f = 0.0;
+            let mut df = 0.0;
+            for (i, z_i) in feed.mole_fractions().enumerate() {
+                let k_i = k_values[i];
+                f += z_i * (k_i - 1.0) / (1.0 + beta * (k_i - 1.0));
+                df -= z_i * (k_i - 1.0).powi(2) / (1.0 + beta * (k_i - 1.0)).powi(2);
+            }
+            let delta = f / df;
+            beta -= delta;
+            if delta.abs() < 1e-10 {
+                break;
+            }
+        }
+        beta.clamp(0.0, 1.0)
+    }
+    
+    pub fn bubble_point(
+        &self,
+        liquid: &Composition,
+        pressure: f64,
+    ) -> f64 {
+        // Find temperature where first bubble forms
+    }
+    
+    pub fn dew_point(
+        &self,
+        vapor: &Composition,
+        pressure: f64,
+    ) -> f64 {
+        // Find temperature where first drop condenses
+    }
+}
+```
+
+#### `tpt-proc-thermo-database`
+
+Chemical property database.
+
+```rust
+pub struct ChemicalDatabase {
+    pub components: HashMap<String, Component>,
+    pub binary_parameters: HashMap<(String, String), BinaryParams>,
+}
+
+impl ChemicalDatabase {
+    pub fn load_builtin(&self) -> Result<(), DatabaseError> {
+        // Load built-in database of common chemicals
+        // Water, methanol, ethanol, benzene, toluene, etc.
+    }
+    
+    pub fn get_component(&self, name: &str) -> Option<&Component> {
+        self.components.get(name)
+    }
+    
+    pub fn get_binary_interaction(
+        &self,
+        comp_a: &str,
+        comp_b: &str,
+    ) -> Option<f64> {
+        // Return binary interaction parameter k_ij
+    }
+}
+```
+
+---
+
+### Domain 3: Fluid Flow & Hydraulics
+
+#### `tpt-proc-fluid`
+
+Pipe flow calculations.
+
+```rust
+pub struct PipeFlow {
+    pub diameter: f64,              // m
+    pub length: f64,                // m
+    pub roughness: f64,             // m (absolute roughness)
+    pub fluid: FluidProperties,
+}
+
+pub struct FluidProperties {
+    pub density: f64,               // kg/m³
+    pub viscosity: f64,             // Pa·s
+}
+
+impl PipeFlow {
+    pub fn reynolds_number(&self, velocity: f64) -> f64 {
+        // Re = ρ·v·D/μ
+        self.fluid.density * velocity * self.diameter / self.fluid.viscosity
+    }
+    
+    pub fn friction_factor(&self, velocity: f64) -> f64 {
+        let re = self.reynolds_number(velocity);
+        
+        if re < 2300.0 {
+            // Laminar: f = 64/Re
+            64.0 / re
+        } else {
+            // Turbulent: Colebrook-White equation
+            self.colebrook_white(re)
+        }
+    }
+    
+    fn colebrook_white(&self, re: f64) -> f64 {
+        // 1/√f = -2·log10(ε/(3.7D) + 2.51/(Re·√f))
+        // Solve iteratively (or use Swamee-Jain approximation)
+        let rel_roughness = self.roughness / self.diameter;
+        
+        // Swamee-Jain explicit approximation
+        let f = 0.25 / (rel_roughness / 3.7 + 5.74 / re.powf(0.9)).log10().powi(2);
+        f
+    }
+    
+    pub fn pressure_drop(&self, flow_rate: f64) -> f64 {
+        // Darcy-Weisbach: ΔP = f·(L/D)·(ρ·v²/2)
+        let area = std::f64::consts::PI * self.diameter.powi(2) / 4.0;
+        let velocity = flow_rate / area;
+        let f = self.friction_factor(velocity);
+        
+        f * (self.length / self.diameter) 
+            * self.fluid.density * velocity.powi(2) / 2.0
+    }
+    
+    pub fn pressure_drop_per_length(&self, flow_rate: f64) -> f64 {
+        self.pressure_drop(flow_rate) / self.length
+    }
+}
+```
+
+#### `tpt-proc-pumps`
+
+Pump modeling and selection.
+
+```rust
+pub struct Pump {
+    pub curve: PumpCurve,
+    pub efficiency_curve: EfficiencyCurve,
+    pub speed_rpm: f64,
+}
+
+pub struct PumpCurve {
+    pub shutoff_head: f64,          // Head at zero flow
+    pub coefficients: [f64; 3],     // Polynomial coefficients
+}
+
+impl PumpCurve {
+    pub fn head_at_flow(&self, flow_rate: f64) -> f64 {
+        // H = a + b·Q + c·Q²
+        let [a, b, c] = self.coefficients;
+        a + b * flow_rate + c * flow_rate.powi(2)
+    }
+}
+
+impl Pump {
+    pub fn operating_point(
+        &self,
+        system_curve: &SystemCurve,
+    ) -> OperatingPoint {
+        // Find intersection of pump curve and system curve
+        // Pump head = System head (static + friction)
+    }
+    
+    pub fn power_consumption(
+        &self,
+        flow_rate: f64,
+        head: f64,
+    ) -> f64 {
+        // P = ρ·g·Q·H/η
+        let efficiency = self.efficiency_curve.at_flow(flow_rate);
+        self.curve.head_at_flow(flow_rate) * flow_rate 
+            * 9.81 * 1000.0 / efficiency
+    }
+    
+    pub fn affinity_laws(
+        &self,
+        new_speed_rpm: f64,
+    ) -> Pump {
+        // Q2/Q1 = N2/N1
+        // H2/H1 = (N2/N1)²
+        // P2/P1 = (N2/N1)³
+        let ratio = new_speed_rpm / self.speed_rpm;
+        // Return scaled pump curve
+    }
+}
+```
+
+#### `tpt-proc-network`
+
+Pipe network solver.
+
+```rust
+pub struct PipeNetwork {
+    pub nodes: Vec<NetworkNode>,
+    pub pipes: Vec<NetworkPipe>,
+    pub pumps: Vec<NetworkPump>,
+}
+
+pub enum NetworkSolveMethod {
+    HardyCross,
+    NewtonRaphson,
+    LinearTheory,
+}
+
+impl PipeNetwork {
+    pub fn solve(
+        &self,
+        method: NetworkSolveMethod,
+    ) -> NetworkSolution {
+        match method {
+            NetworkSolveMethod::HardyCross => self.hardy_cross(),
+            NetworkSolveMethod::NewtonRaphson => self.newton_raphson(),
+            NetworkSolveMethod::LinearTheory => self.linear_theory(),
+        }
+    }
+    
+    fn hardy_cross(&self) -> NetworkSolution {
+        // Iterative loop correction method
+        // 1. Assume initial flows satisfying continuity
+        // 2. For each loop, calculate ΔQ correction
+        // 3. Update flows, repeat until convergence
+    }
+}
+
+pub struct NetworkSolution {
+    pub node_pressures: HashMap<NodeId, f64>,
+    pub pipe_flows: HashMap<PipeId, f64>,
+    pub converged: bool,
+    pub iterations: u32,
+}
+```
+
+---
+
+### Domain 4: Heat Transfer
+
+#### `tpt-proc-heat-transfer`
+
+Convection correlations and heat transfer fundamentals.
+
+```rust
+pub struct ConvectionCorrelation {
+    pub geometry: Geometry,
+    pub flow_regime: FlowRegime,
+}
+
+pub enum Geometry {
+    PipeInternal,
+    PipeExternal,
+    FlatPlate,
+    ShellAndTube,
+    CrossflowTubeBank,
+}
+
+impl ConvectionCorrelation {
+    pub fn nusselt_number(
+        &self,
+        reynolds: f64,
+        prandtl: f64,
+    ) -> f64 {
+        match (&self.geometry, &self.flow_regime) {
+            (Geometry::PipeInternal, FlowRegime::Turbulent) => {
+                // Dittus-Boelter: Nu = 0.023·Re^0.8·Pr^n
+                0.023 * reynolds.powf(0.8) * prandtl.powf(0.4)
+            }
+            (Geometry::PipeInternal, FlowRegime::Laminar) => {
+                // Constant: Nu = 3.66 (fully developed, constant T)
+                3.66
+            }
+            (Geometry::FlatPlate, FlowRegime::Turbulent) => {
+                // Nu = 0.037·Re^0.8·Pr^(1/3)
+                0.037 * reynolds.powf(0.8) * prandtl.powf(1.0/3.0)
+            }
+            _ => unimplemented!(),
+        }
+    }
+    
+    pub fn heat_transfer_coefficient(
+        &self,
+        nusselt: f64,
+        thermal_conductivity: f64,
+        characteristic_length: f64,
+    ) -> f64 {
+        // h = Nu·k/L
+        nusselt * thermal_conductivity / characteristic_length
+    }
+}
+```
+
+#### `tpt-proc-heat-exchangers`
+
+Heat exchanger rating and sizing.
+
+```rust
+pub struct HeatExchanger {
+    pub exchanger_type: HeatExchangerType,
+    pub area: f64,                  // m²
+    pub overall_coefficient: f64,   // W/(m²·K)
+    pub fouling_factors: FoulingFactors,
+    pub configuration: FlowConfiguration,
+}
+
+pub enum HeatExchangerType {
+    ShellAndTube,
+    PlateAndFrame,
+    DoublePipe,
+    AirCooled,
+    SpiralWound,
+}
+
+pub enum FlowConfiguration {
+    CounterCurrent,
+    CoCurrent,
+    Crossflow,
+    ShellTube { passes: u32 },
+}
+
+impl HeatExchanger {
+    pub fn lmtd(
+        &self,
+        hot_in: f64,
+        hot_out: f64,
+        cold_in: f64,
+        cold_out: f64,
+    ) -> f64 {
+        // Log Mean Temperature Difference
+        let dt1 = hot_in - cold_out;
+        let dt2 = hot_out - cold_in;
+        
+        if (dt1 - dt2).abs() < 1e-6 {
+            dt1  // Avoid division by zero
+        } else {
+            (dt1 - dt2) / (dt1 / dt2).ln()
+        }
+    }
+    
+    pub fn duty_from_lmtd(
+        &self,
+        hot_in: f64,
+        hot_out: f64,
+        cold_in: f64,
+        cold_out: f64,
+        correction_factor: f64,
+    ) -> f64 {
+        // Q = U·A·LMTD·F
+        let lmtd = self.lmtd(hot_in, hot_out, cold_in, cold_out);
+        self.overall_coefficient * self.area * lmtd * correction_factor
+    }
+    
+    pub fn ntu_effectiveness(
+        &self,
+        hot_capacity_rate: f64,     // m·cp (W/K)
+        cold_capacity_rate: f64,
+    ) -> NtuResult {
+        // NTU = UA/C_min
+        // ε = f(NTU, C_r)
+        let c_min = hot_capacity_rate.min(cold_capacity_rate);
+        let c_max = hot_capacity_rate.max(cold_capacity_rate);
+        let c_r = c_min / c_max;
+        let ntu = self.overall_coefficient * self.area / c_min;
+        
+        let effectiveness = match self.configuration {
+            FlowConfiguration::CounterCurrent => {
+                (1.0 - (-ntu * (1.0 - c_r)).exp()) 
+                    / (1.0 - c_r * (-ntu * (1.0 - c_r)).exp())
+            }
+            FlowConfiguration::CoCurrent => {
+                (1.0 - (-ntu * (1.0 + c_r)).exp()) / (1.0 + c_r)
+            }
+            _ => unimplemented!(),
+        };
+        
+        NtuResult { ntu, effectiveness, capacity_ratio: c_r }
+    }
+    
+    pub fn rate(
+        &self,
+        hot_stream: &MaterialStream,
+        cold_stream: &MaterialStream,
+    ) -> RatingResult {
+        // Rating mode: given exchanger and streams, find duty and outlet temps
+    }
+    
+    pub fn size(
+        &self,
+        duty: f64,
+        hot_stream: &MaterialStream,
+        cold_stream: &MaterialStream,
+    ) -> SizingResult {
+        // Sizing mode: given duty and streams, find required area
+    }
+}
+
+pub struct NtuResult {
+    pub ntu: f64,
+    pub effectiveness: f64,
+    pub capacity_ratio: f64,
+}
+```
+
+#### `tpt-proc-heat-network`
+
+Pinch analysis and heat exchanger network synthesis.
+
+```rust
+pub struct PinchAnalysis {
+    pub hot_streams: Vec<ProcessStream>,
+    pub cold_streams: Vec<ProcessStream>,
+    pub delta_t_min: f64,
+}
+
+pub struct ProcessStream {
+    pub supply_temp: f64,
+    pub target_temp: f64,
+    pub heat_capacity_flow: f64,    // m·cp (W/K)
+    pub is_hot: bool,
+}
+
+impl PinchAnalysis {
+    pub fn composite_curves(&self) -> CompositeCurves {
+        // Generate hot and cold composite curves
+    }
+    
+    pub fn grand_composite_curve(&self) -> GrandCompositeCurve {
+        // Generate grand composite curve
+    }
+    
+    pub fn minimum_utilities(&self) -> UtilityTargets {
+        // Calculate minimum heating and cooling utility requirements
+    }
+    
+    pub fn pinch_temperature(&self) -> PinchPoint {
+        // Find the pinch point temperature
+    }
+    
+    pub fn network_synthesis(&self) -> HeatExchangerNetwork {
+        // Generate optimal HEN using pinch design method
+    }
+}
+
+pub struct UtilityTargets {
+    pub min_heating_duty: f64,      // W
+    pub min_cooling_duty: f64,      // W
+    pub pinch_hot_temp: f64,
+    pub pinch_cold_temp: f64,
+}
+```
+
+---
+
+### Domain 5: Separations
+
+#### `tpt-proc-distillation`
+
+Distillation column modeling.
+
+```rust
+pub struct DistillationColumn {
+    pub num_stages: u32,
+    pub feed_stage: u32,
+    pub reflux_ratio: f64,
+    pub column_pressure: f64,
+    pub property_package: PropertyPackage,
+}
+
+impl DistillationColumn {
+    pub fn mccabe_thiele(
+        &self,
+        feed: &Composition,
+        distillate_spec: f64,
+        bottoms_spec: f64,
+    ) -> McCabeThieleResult {
+        // Binary distillation shortcut
+        // 1. Generate equilibrium curve from property package
+        // 2. Draw operating lines (rectifying, stripping)
+        // 3. Step off stages
+    }
+    
+    pub fn fug_shortcut(
+        &self,
+        feed: &Composition,
+        light_key: ComponentId,
+        heavy_key: ComponentId,
+        recovery_spec: RecoverySpec,
+    ) -> FugResult {
+        // Fenske-Underwood-Gilliland shortcut method
+        // 1. Fenske: minimum stages
+        // 2. Underwood: minimum reflux
+        // 3. Gilliland: actual stages from actual reflux
+        
+        let n_min = self.fenske_min_stages(feed, light_key, heavy_key, &recovery_spec);
+        let r_min = self.underwood_min_reflux(feed, light_key, heavy_key);
+        let n_actual = self.gilliland_correlation(n_min, r_min, self.reflux_ratio);
+        
+        FugResult {
+            min_stages: n_min,
+            min_reflux: r_min,
+            actual_stages: n_actual,
+        }
+    }
+    
+    fn fenske_min_stages(
+        &self,
+        feed: &Composition,
+        light_key: ComponentId,
+        heavy_key: ComponentId,
+        recovery: &RecoverySpec,
+    ) -> f64 {
+        // N_min = ln[(x_LK/x_HK)_D · (x_HK/x_LK)_B] / ln(α_LK/HK)
+    }
+    
+    fn underwood_min_reflux(
+        &self,
+        feed: &Composition,
+        light_key: ComponentId,
+        heavy_key: ComponentId,
+    ) -> f64 {
+        // Solve Underwood equations for θ and R_min
+    }
+    
+    fn gilliland_correlation(
+        &self,
+        n_min: f64,
+        r_min: f64,
+        r_actual: f64,
+    ) -> f64 {
+        // Gilliland correlation: (N-N_min)/(N+1) = f((R-R_min)/(R+1))
+    }
+    
+    pub fn rigorous_mesh(
+        &self,
+        feed: &Composition,
+    ) -> RigorousResult {
+        // Rigorous MESH (Material, Equilibrium, Summation, Heat) equations
+        // Solve using inside-out or Newton method
+    }
+}
+
+pub struct FugResult {
+    pub min_stages: f64,
+    pub min_reflux: f64,
+    pub actual_stages: f64,
+}
+```
+
+#### `tpt-proc-absorption`
+
+Gas absorption and stripping.
+
+```rust
+pub struct Absorber {
+    pub num_stages: u32,
+    pub solvent: Component,
+    pub property_package: PropertyPackage,
+}
+
+impl Absorber {
+    pub fn kremser_equation(
+        &self,
+        gas_in: &Composition,
+        solvent_in: &Composition,
+        absorption_factor: f64,
+    ) -> AbsorptionResult {
+        // Kremser equation for multi-stage absorption
+    }
+}
+```
+
+---
+
+### Domain 6: Reaction Engineering
+
+#### `tpt-proc-reaction`
+
+Reaction kinetics.
+
+```rust
+pub struct Reaction {
+    pub id: ReactionId,
+    pub stoichiometry: HashMap<ComponentId, f64>,
+    pub kinetics: ReactionKinetics,
+    pub heat_of_reaction: f64,      // J/mol
+}
+
+pub enum ReactionKinetics {
+    Arrhenius {
+        pre_exponential: f64,       // A
+        activation_energy: f64,     // Ea (J/mol)
+        reaction_order: HashMap<ComponentId, f64>,
+    },
+    PowerLaw {
+        k: f64,
+        orders: HashMap<ComponentId, f64>,
+    },
+    LangmuirHinshelwood {
+        adsorption_constants: HashMap<ComponentId, f64>,
+        rate_constant: f64,
+    },
+    MichaelisMenten {
+        v_max: f64,
+        k_m: f64,
+    },
+}
+
+impl ReactionKinetics {
+    pub fn rate_constant(&self, temperature: f64) -> f64 {
+        match self {
+            ReactionKinetics::Arrhenius { pre_exponential, activation_energy, .. } => {
+                // k = A·exp(-Ea/RT)
+                pre_exponential * (-activation_energy / (8.314 * temperature)).exp()
+            }
+            ReactionKinetics::PowerLaw { k, .. } => *k,
+            _ => unimplemented!(),
+        }
+    }
+    
+    pub fn reaction_rate(
+        &self,
+        composition: &Composition,
+        temperature: f64,
+    ) -> f64 {
+        let k = self.rate_constant(temperature);
+        // r = k · Π C_i^n_i
+        match self {
+            ReactionKinetics::Arrhenius { reaction_order, .. } => {
+                let mut rate = k;
+                for (comp, order) in reaction_order {
+                    rate *= composition.concentration(comp).powf(*order);
+                }
+                rate
+            }
+            _ => unimplemented!(),
+        }
+    }
+}
+```
+
+#### `tpt-proc-reactors`
+
+Reactor models.
+
+```rust
+pub enum ReactorConfig {
+    Batch { volume: f64 },
+    CSTR { volume: f64 },
+    PFR { volume: f64, length: f64, diameter: f64 },
+    PackedBed { volume: f64, catalyst: Catalyst },
+    FluidizedBed { volume: f64 },
+}
+
+pub struct Reactor {
+    pub config: ReactorConfig,
+    pub reactions: Vec<Reaction>,
+    pub property_package: PropertyPackage,
+}
+
+impl Reactor {
+    pub fn solve_steady_state(
+        &self,
+        feed: &MaterialStream,
+    ) -> ReactorResult {
+        match &self.config {
+            ReactorConfig::CSTR { volume } => self.solve_cstr(feed, *volume),
+            ReactorConfig::PFR { volume, .. } => self.solve_pfr(feed, *volume),
+            ReactorConfig::Batch { volume } => self.solve_batch(feed, *volume),
+            _ => unimplemented!(),
+        }
+    }
+    
+    fn solve_cstr(
+        &self,
+        feed: &MaterialStream,
+        volume: f64,
+    ) -> ReactorResult {
+        // CSTR design equation: V = F_A0·X / (-r_A)
+        // Solve algebraic equations
+    }
+    
+    fn solve_pfr(
+        &self,
+        feed: &MaterialStream,
+        volume: f64,
+    ) -> ReactorResult {
+        // PFR design equation: dX/dV = -r_A / F_A0
+        // Integrate ODE along reactor length
+    }
+}
+
+pub struct ReactorResult {
+    pub outlet_stream: MaterialStream,
+    pub conversion: HashMap<ComponentId, f64>,
+    pub heat_duty: f64,
+    pub temperature_profile: Option<Vec<f64>>,
+}
+```
+
+---
+
+### Domain 7: Process Simulation
+
+#### `tpt-proc-flowsheet`
+
+Flowsheet solver.
+
+```rust
+pub struct FlowsheetSolver {
+    pub flowsheet: Flowsheet,
+    pub method: SolverMethod,
+}
+
+pub enum SolverMethod {
+    SequentialModular { tear_streams: Vec<StreamId> },
+    EquationOriented,
+}
+
+impl FlowsheetSolver {
+    pub fn solve(&mut self) -> FlowsheetResult {
+        match &self.method {
+            SolverMethod::SequentialModular { tear_streams } => {
+                self.sequential_modular(tear_streams)
+            }
+            SolverMethod::EquationOriented => {
+                self.equation_oriented()
+            }
+        }
+    }
+    
+    fn sequential_modular(
+        &mut self,
+        tear_streams: &[StreamId],
+    ) -> FlowsheetResult {
+        // 1. Initialize tear streams with estimates
+        // 2. Execute units in topological order
+        // 3. Update tear streams
+        // 4. Repeat until tear streams converge
+        // (Use Wegstein or Broyden acceleration)
+    }
+    
+    fn equation_oriented(&mut self) -> FlowsheetResult {
+        // Solve all unit equations simultaneously
+        // Large sparse Newton-Raphson system
+    }
+}
+
+pub struct FlowsheetResult {
+    pub streams: HashMap<StreamId, MaterialStream>,
+    pub unit_results: HashMap<UnitId, UnitResult>,
+    pub converged: bool,
+    pub iterations: u32,
+    pub mass_balance_error: f64,
+    pub energy_balance_error: f64,
+}
+```
+
+#### `tpt-proc-mass-balance`
+
+Mass balance calculations.
+
+```rust
+pub struct MassBalance {
+    pub flowsheet: Flowsheet,
+}
+
+impl MassBalance {
+    pub fn overall_balance(&self) -> BalanceResult {
+        // Total mass in = Total mass out
+    }
+    
+    pub fn component_balance(&self) -> HashMap<ComponentId, BalanceResult> {
+        // Component-wise mass balance
+    }
+    
+    pub fn reconcile(
+        &self,
+        measurements: &HashMap<StreamId, f64>,
+    ) -> ReconciliationResult {
+        // Data reconciliation to satisfy mass balance
+        // Weighted least squares adjustment
+    }
+}
+```
+
+---
+
+### Domain 8: Applications
+
+#### `tpt-proc-hvac`
+
+HVAC psychrometrics.
+
+```rust
+pub struct Psychrometrics {
+    pub pressure: f64,              // Atmospheric pressure (Pa)
+}
+
+pub struct AirState {
+    pub dry_bulb_temp: f64,         // °C
+    pub humidity_ratio: f64,        // kg water / kg dry air
+    pub relative_humidity: f64,     // 0-1
+    pub wet_bulb_temp: f64,         // °C
+    pub enthalpy: f64,              // kJ/kg dry air
+    pub specific_volume: f64,       // m³/kg dry air
+}
+
+impl Psychrometrics {
+    pub fn saturation_pressure(&self, temp_c: f64) -> f64 {
+        // Antoine equation or ASHRAE correlation
+    }
+    
+    pub fn humidity_ratio_from_rh(
+        &self,
+        dry_bulb: f64,
+        relative_humidity: f64,
+    ) -> f64 {
+        // W = 0.622 · P_w / (P - P_w)
+    }
+    
+    pub fn cooling_coil(
+        &self,
+        inlet: &AirState,
+        outlet: &AirState,
+        airflow: f64,
+    ) -> CoilResult {
+        // Calculate cooling coil load and bypass factor
+    }
+    
+    pub fn mixing(
+        &self,
+        stream_a: &AirState,
+        stream_b: &AirState,
+        ratio: f64,
+    ) -> AirState {
+        // Adiabatic mixing of two air streams
+    }
+}
+```
+
+#### `tpt-proc-water`
+
+Water treatment processes.
+
+```rust
+pub struct WaterTreatment {
+    pub influent: WaterQuality,
+    pub processes: Vec<WaterProcess>,
+}
+
+pub enum WaterProcess {
+    Coagulation { dose: f64 },
+    Flocculation { retention_time: f64 },
+    Sedimentation { surface_loading: f64 },
+    Filtration { media: FilterMedia },
+    Disinfection { method: DisinfectionMethod },
+    IonExchange { resin: String },
+    ReverseOsmosis { membrane: MembraneSpec },
+}
+
+impl WaterTreatment {
+    pub fn simulate(&self) -> WaterTreatmentResult {
+        // Simulate treatment train
+    }
+}
+```
+
+#### `tpt-proc-hydrogen`
+
+Hydrogen production processes.
+
+```rust
+pub struct HydrogenProduction {
+    pub method: HydrogenMethod,
+}
+
+pub enum HydrogenMethod {
+    Electrolysis { electrolyzer_type: ElectrolyzerType },
+    SteamMethaneReforming { reformer: SmrConfig },
+    WaterGasShift,
+    AutoThermalReforming,
+}
+
+impl HydrogenProduction {
+    pub fn efficiency(&self) -> f64 {
+        // kWh per kg of H2 produced
+    }
+    
+    pub fn production_rate(
+        &self,
+        power_input: f64,
+    ) -> f64 {
+        // kg H2 per hour
+    }
+}
+```
+
+---
+
+## 6. Cross-Repo Integration (The Process Connector)
+
+`tpt-process` connects to all other TPT repositories through material and energy flows.
+
+```rust
+// Example: Process heat integration with tpt-energy
+use tpt_process::heat_network::PinchAnalysis;
+use tpt_energy::grid::EnergySystem;
+
+fn optimize_plant_energy(flowsheet: &Flowsheet) -> EnergyIntegrationResult {
+    // Extract hot and cold streams from flowsheet
+    let pinch = PinchAnalysis::new(
+        flowsheet.hot_streams(),
+        flowsheet.cold_streams(),
+        delta_t_min: 10.0,
+    );
+    
+    let utility_targets = pinch.minimum_utilities();
+    
+    // Connect to tpt-energy for utility optimization
+    // Determine optimal boiler, chiller, and CHP sizing
+    
+    EnergyIntegrationResult {
+        min_heating: utility_targets.min_heating_duty,
+        min_cooling: utility_targets.min_cooling_duty,
+        recommended_utilities: Vec::new(),
+    }
+}
+
+
+// Example: Chemical manufacturing of battery materials
+use tpt_materials::energy_materials::ActiveMaterial;
+use tpt_process::reactors::Reactor;
+
+fn design_cathode_synthesis() -> ProcessDesign {
+    // Design the chemical process to manufacture NMC cathode material
+    // This feeds into tpt-materials for battery simulation
+    
+    let reactor = Reactor::new(
+        ReactorConfig::CSTR { volume: 10.0 },
+        vec![coprecipitation_reaction()],
+    );
+    
+    // Output: cathode precursor with specified properties
+    // Fed to tpt-materials for electrode simulation
+    
+    ProcessDesign { /* ... */ }
+}
+
+
+// Example: Pharmaceutical batch process for tpt-medical
+use tpt_medical::implants::ImplantMaterial;
+use tpt_process::applications::pharma::BatchProcess;
+
+fn design_implant_coating_process() -> BatchProcessDesign {
+    // Design the coating process for medical implants
+    // Ensures biocompatibility requirements from tpt-medical
+    
+    BatchProcessDesign { /* ... */ }
+}
+```
+
+---
+
+## 7. WASM Integration
+
+`tpt-proc-wasm` compiles the process engineering stack to WebAssembly.
+
+```rust
+#[wasm_bindgen]
+pub struct WasmFlashCalculator {
+    solver: FlashSolver,
+}
+
+#[wasm_bindgen]
+impl WasmFlashCalculator {
+    #[wasm_bindgen(constructor)]
+    pub fn new(components_json: &str) -> WasmFlashCalculator {
+        // Create flash solver with specified components
+    }
+    
+    pub fn pt_flash(
+        &self,
+        composition: &[f64],
+        temperature: f64,
+        pressure: f64,
+    ) -> WasmFlashResult {
+        // Run flash calculation in browser
+    }
+}
+
+#[wasm_bindgen]
+pub struct WasmHeatExchanger {
+    exchanger: HeatExchanger,
+}
+
+#[wasm_bindgen]
+impl WasmHeatExchanger {
+    pub fn rate(
+        &self,
+        hot_in: f64,
+        cold_in: f64,
+        hot_flow: f64,
+        cold_flow: f64,
+    ) -> WasmRatingResult {
+        // Rate heat exchanger in browser
+    }
+}
+```
+
+**WASM Use Cases:**
+- **Interactive PFD Designer:** Engineers build process flow diagrams in the browser with real-time mass/energy balance.
+- **Edge Process Control:** Compile flash calculations to WASM for real-time MPC on edge controllers.
+- **Educational Tools:** Students run distillation and reactor simulations without installing software.
+- **Field Calculations:** Plant operators calculate heat exchanger fouling on tablets without cloud dependency.
+
+---
+
+## 8. MIT Chain Enforcement
+
+### `deny.toml`
+
+```toml
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0"
+]
+
+copyleft = "deny"
+unlicensed = "deny"
+allow-osi-fsf-free = "neither"
+```
+
+### License Traps to Avoid
+
+| Domain | GPL/Proprietary Trap | MIT Solution |
+|---|---|---|
+| Process Simulators | Aspen HYSYS, ChemCAD, PRO/II (proprietary) | Pure Rust flowsheet solver |
+| Thermodynamic Databanks | Aspen databank licenses (recurring fees) | Open thermodynamic database |
+| Property Libraries | CoolProp (MIT but C++), REFPROP (proprietary) | Pure Rust property packages |
+| Reaction Kinetics | Cantera (BSD but C++ heavy) | Clean-room kinetics in Rust |
+| CFD Mixing | OpenFOAM (GPL) | `tpt-fem` or simplified models |
+| Optimization | Gurobi, CPLEX (proprietary) | `tpt-math-optimize-general` |
+
+---
+
+## 9. Testing & Validation Strategy
+
+### Verification & Validation (V&V)
+
+```rust
+#[cfg(test)]
+mod verification_tests {
+    use super::*;
+    
+    #[test]
+    fn test_peng_robinson_pure_component() {
+        // Verify PR EOS against known saturation pressures
+        let pr = PengRobinson::new(vec![Component::water()]);
+        let p_sat = pr.vapor_pressure(373.15);  // 100°C
+        assert!((p_sat - 101325.0).abs() < 5000.0);  // Within 5%
+    }
+    
+    #[test]
+    fn test_flash_single_component() {
+        // Flash of pure water at 100°C, 1 atm should give β = 0.5
+        let flash = FlashSolver::new(water_property_package());
+        let result = flash.pt_flash(&pure_water(), 373.15, 101325.0);
+        assert!((result.vapor_fraction - 0.5).abs() < 0.01);
+    }
+    
+    #[test]
+    fn test_lmtd_counter_current() {
+        // Verify LMTD calculation
+        let hx = HeatExchanger::new(/* ... */);
+        let lmtd = hx.lmtd(100.0, 60.0, 20.0, 50.0);
+        let expected = (50.0 - 10.0) / (50.0 / 10.0).ln();
+        assert!((lmtd - expected).abs() < 1e-6);
+    }
+    
+    #[test]
+    fn test_rachford_rice_convergence() {
+        // Rachford-Rice should converge for valid K-values
+    }
+    
+    #[test]
+    fn test_darcy_weisbach_laminar() {
+        // Verify pressure drop for laminar flow (Re < 2300)
+        let pipe = PipeFlow::new(/* ... */);
+        let dp = pipe.pressure_drop(low_flow_rate);
+        // Compare to analytical Hagen-Poiseuille
+    }
+}
+```
+
+### Benchmark Models
+
+```text
+test-data/golden/
+├── thermodynamics/
+│   ├── pr-vapor-pressure.json
+│   ├── nrtl-activity-coefficients.json
+│   ├── flash-binary-vle.json
+│   └── bubble-dew-point.json
+├── fluid-flow/
+│   ├── pipe-pressure-drop.json
+│   ├── pump-operating-point.json
+│   └── network-hardy-cross.json
+├── heat-transfer/
+│   ├── lmtd-counter-current.json
+│   ├── ntu-effectiveness.json
+│   └── pinch-analysis.json
+├── separations/
+│   ├── mccabe-thiele-binary.json
+│   ├── fug-shortcut.json
+│   └── kremser-absorption.json
+├── reactors/
+│   ├── cstr-conversion.json
+│   ├── pfr-profile.json
+│   └── arrhenius-rate.json
+└── applications/
+    ├── psychrometrics-cooling.json
+    └── water-treatment-train.json
+```
+
+### Validation Standards
+
+- **DIPPR:** Design Institute for Physical Properties (reference data)
+- **NIST:** Thermophysical Properties of Fluid Systems
+- **AIChE:** Distillation and absorption benchmark problems
+- **API:** Petroleum refining standards
+- **ASHRAE:** HVAC psychrometric standards
+
+---
+
+## 10. Open Source Community & Contribution
+
+### Contribution Workflow
+
+```text
+1. Fork repository
+2. Create feature branch: `feature/nrtl-activity`
+3. Write code + tests
+4. Run `cargo fmt`, `cargo clippy`, `cargo test`
+5. Run `cargo deny check licenses`
+6. Submit PR with DCO sign-off
+7. RFC discussion for new unit operations
+8. Merge after 2 approvals
+```
+
+### RFC Process
+
+New unit operations or thermodynamic models require an RFC:
+
+```text
+rfcs/
+├── 0001-peng-robinson-eos.md
+├── 0002-flash-calculations.md
+├── 0003-flowsheet-solver.md
+├── 0004-pinch-analysis.md
+├── 0005-rigorous-distillation.md
+└── 0006-dynamic-simulation.md
+```
+
+---
+
+## 11. Phased Delivery Plan
+
+### Phase 1: Foundation (Months 1-3)
+- `tpt-proc-core`, `tpt-proc-topology`, `tpt-proc-units`
+- Basic stream and unit operation types
+- **Milestone:** Parse a simple PFD, build process graph
+
+### Phase 2: Thermodynamics (Months 4-6)
+- `tpt-proc-thermo-core`, `tpt-proc-thermo-eos`
+- Peng-Robinson, SRK equations of state
+- `tpt-proc-thermo-database` (built-in chemical database)
+- **Milestone:** Calculate vapor pressures and fugacities for common chemicals
+
+### Phase 3: Phase Equilibrium (Months 7-9)
+- `tpt-proc-thermo-activity` (NRTL, UNIQUAC, Wilson)
+- `tpt-proc-thermo-phase` (flash calculations, VLE, LLE)
+- **Milestone:** Solve binary and multicomponent flash problems
+
+### Phase 4: Fluid Flow (Months 10-12)
+- `tpt-proc-fluid` (pipe flow, Darcy-Weisbach)
+- `tpt-proc-pumps`, `tpt-proc-compressors`, `tpt-proc-valves`
+- `tpt-proc-network` (pipe network solver)
+- **Milestone:** Solve pipe network with Hardy Cross
+
+### Phase 5: Heat Transfer (Months 13-15)
+- `tpt-proc-heat-transfer` (convection correlations)
+- `tpt-proc-heat-exchangers` (LMTD, NTU)
+- `tpt-proc-heat-network` (pinch analysis)
+- **Milestone:** Rate and size shell-and-tube heat exchangers
+
+### Phase 6: Separations (Months 16-18)
+- `tpt-proc-distillation` (McCabe-Thiele, FUG, rigorous MESH)
+- `tpt-proc-absorption`, `tpt-proc-extraction`
+- **Milestone:** Design binary distillation column with FUG shortcut
+
+### Phase 7: Reaction Engineering (Months 19-21)
+- `tpt-proc-reaction` (kinetics, Arrhenius)
+- `tpt-proc-reactors` (batch, CSTR, PFR)
+- **Milestone:** Simulate CSTR and PFR with exothermic reaction
+
+### Phase 8: Flowsheet & Applications (Months 22-24)
+- `tpt-proc-flowsheet` (sequential modular solver)
+- `tpt-proc-hvac`, `tpt-proc-water`, `tpt-proc-hydrogen`
+- Full integration with `tpt-energy`, `tpt-materials`
+- **Milestone:** Solve complete process flowsheet with recycle
+
+---
+
+
+## 13. README Template
+
+```markdown
+# tpt-process
+
+A fully open-source, MIT-licensed computational engine for chemical and process engineering: thermodynamics, fluid flow, heat transfer, separations, and reaction engineering.
+
+## Crates
+
+| Crate | Description | Status |
+|---|---|---|
+| `tpt-proc-core` | Core stream and unit types | ✅ Stable |
+| `tpt-proc-thermo-eos` | Peng-Robinson, SRK equations of state | ✅ Stable |
+| `tpt-proc-thermo-phase` | Flash calculations, VLE, LLE | ✅ Stable |
+| `tpt-proc-fluid` | Pipe flow, Darcy-Weisbach | ✅ Stable |
+| `tpt-proc-heat-exchangers` | LMTD, NTU-effectiveness | 🚧 Alpha |
+| `tpt-proc-distillation` | McCabe-Thiele, FUG, rigorous MESH | 🚧 Alpha |
+| `tpt-proc-reactors` | Batch, CSTR, PFR models | 🚧 Alpha |
+| `tpt-proc-flowsheet` | Sequential modular solver | 📋 Planned |
+
+## Quick Start
+
+```rust
+use tpt_process::thermo_eos::PengRobinson;
+use tpt_process::thermo_phase::FlashSolver;
+
+fn main() {
+    let pr = PengRobinson::new(vec![Component::water(), Component::methanol()]);
+    let flash = FlashSolver::new(pr.into_property_package());
+    
+    let feed = Composition::from_mole_fractions(&[0.5, 0.5]);
+    let result = flash.pt_flash(&feed, 350.0, 101325.0);
+    
+    println!("Vapor fraction: {}", result.vapor_fraction);
+}
+```
+
+## The Process Connector
+
+`tpt-process` integrates with other TPT repositories:
+- `tpt-energy` ← Heat integration, utility optimization
+- `tpt-materials` ← Chemical manufacturing processes
+- `tpt-medical` ← Pharmaceutical batch processes
+- `tpt-construction` ← Plant layout and design
+
+## License
+
+Licensed under either of
+
+- MIT license ([LICENSE-MIT](LICENSE-MIT))
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+
+at your option.
+
+
+---
+
+## 14. Summary
+
+`tpt-process` is a fully open-source, MIT-licensed, pure-Rust computational engine for chemical and process engineering:
+
+- **Thermodynamics** — Equations of state, activity models, phase equilibrium
+- **Fluid Flow** — Pipe networks, pumps, compressors, valves
+- **Heat Transfer** — Convection, heat exchangers, pinch analysis
+- **Separations** — Distillation, absorption, extraction, membranes
+- **Reaction Engineering** — Kinetics, reactors, catalysis
+- **Process Simulation** — Flowsheet solving, mass/energy balance
+- **Applications** — HVAC, water treatment, refining, hydrogen, pharma
+
+All crates maintain the strict MIT chain, leverage the TPT substrates (`tpt-math`, `tpt-engineering`, `tpt-science`), and compile to WebAssembly for browser-based process design and edge control.
+
+No proprietary cores. No GPL traps. No databank ransom. Just open source.
