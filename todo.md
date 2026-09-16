@@ -128,3 +128,46 @@ third-party interface specifications.
       *(roadmap: CAPE-OPEN thermodynamics socket first, then .inp-style import)*
 - [x] `docs/book`, `docs/api` publishing pipeline
       *(mdBook sources in `docs/book/src/`; rustdoc published by `docs.yml`)*
+
+## Review Follow-ups (2026-09)
+
+Findings from a full platform review. Nothing here is implemented yet; treat as
+backlog, not status. External contributions are accepted as filed GitHub
+issues (bug reports / feature requests via `.github/ISSUE_TEMPLATE/`), not as
+unsolicited PRs — this applies in particular to the chemical database item
+below.
+
+### Bugs / correctness
+- [ ] Replace `.expect(...)` panics in non-test library code with typed `Result` errors, per CONTRIBUTING.md's "no panics in library code" rule
+      *(`tpt-proc-topology/src/graph.rs`, `lib.rs`; `tpt-proc-heat-network/src/lib.rs`; `tpt-proc-materials/src/lib.rs`; `tpt-proc-optimization/src/lib.rs`; `tpt-proc-thermo-eos/src/lib.rs`, `vapor.rs`; `tpt-proc-thermo-phase/src/lib.rs`)*
+- [ ] Fix `tpt-proc-distillation::benzene_toluene_package()` (public API) to return `Result` instead of panicking
+- [ ] Add convergence edge-case tests for `tpt-proc-flowsheet`'s recycle/tear-stream solver (non-converging loops, ill-conditioned tear streams, multiple recycle loops)
+- [ ] Verify `tpt-energy` / `tpt-materials` / `tpt-construction` pinned git revs are reachable; document `integration/*` crates as optional/excludable if not core
+- [ ] Add `cargo deny check advisories` (or `cargo audit`) to `license.yml` CI
+
+### Chemical database — expand and verify accuracy
+- [ ] Expand `tpt-proc-thermo-database` beyond its current ~27 components
+- [ ] Source new component data from primary references (DIPPR/NIST/AIChE) and cross-check against at least two sources per property before adding
+- [ ] Add a validation CI check that flags new/changed database entries for review (accuracy gate, not open contribution — database changes come from issues, reviewed and entered by maintainers)
+- [ ] Document the source and verification method for each existing and new database entry
+
+### Missing features
+- [ ] `tpt-proc` CLI: config-driven flowsheet runner (TOML/YAML/JSON in, results out) so non-Rust users can run the engine
+- [ ] `serde`-based (de)serialization for `Flowsheet`/`Stream`/`UnitOperation`
+- [ ] Fill `docs/book/src/SUMMARY.md` gaps: HVAC, water, hydrogen, pharma, refining, dynamics, control, economics, PFD export, integration crates
+- [ ] Close example-binary coverage gap: fluid-flow/network/pumps/valves/compressors, absorption/extraction/membranes/crystallization, non-CSTR reactors, economics
+- [ ] Add README badges (build status, crates.io version, docs.rs, license, MSRV)
+
+### Innovative additions
+- [ ] WASM in-browser playground embedded in `docs/book` (flash calc demo, reusing existing `tpt-proc-wasm` bindings)
+- [ ] "Visualize your flowsheet" example/tutorial surfacing `tpt-proc-pfd`'s SVG/DOT/Mermaid export
+- [ ] "Validation" book page surfacing `test-data/golden/*` results against DIPPR/NIST/AIChE/API/ASHRAE references
+
+### Usability / automation
+- [ ] Coverage reporting (`cargo llvm-cov` + Codecov) to make crate-maturity claims verifiable
+- [ ] `cargo-generate` template for scaffolding a new unit-op crate/example per the `UnitOperation` trait pattern
+- [ ] Dry-run the manual-dispatch crates.io publish path on a low-dependency leaf crate before wider promotion
+- [ ] Re-tier README's "✅ Stable" status table (Stable / Beta / Experimental) to reflect actual crate depth, not a uniform label
+
+### Adoption / onboarding
+- [ ] Add a copy-pasteable "5-minute quickstart" at the top of the README, above architecture/philosophy content
