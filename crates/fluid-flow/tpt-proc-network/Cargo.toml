@@ -1,0 +1,18 @@
+[package]
+name = "tpt-proc-network"
+description = "Pipe network solvers: Hardy Cross, Newton-Raphson, Linear Theory"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["pipe-network", "hardy-cross", "hydraulics"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-fluid = { workspace = true }
+
+[lints]
+workspace = true

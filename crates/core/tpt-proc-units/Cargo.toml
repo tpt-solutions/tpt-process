@@ -1,0 +1,17 @@
+[package]
+name = "tpt-proc-units"
+description = "Unit operation scaffolding: behavior trait, ports, mixer and splitter reference models, unit registry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["process-engineering", "unit-operations", "simulation"]
+categories = ["science", "simulation"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+
+[lints]
+workspace = true

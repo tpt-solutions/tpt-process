@@ -1,0 +1,5 @@
+{
+  "description": "NRTL gamma at 50/50 (ethanol/water-style params); Gibbs-Duhem is the primary check",
+  "parameters": {"alpha": 0.30, "tau_01_j_mol": 728.0, "tau_10_j_mol": 385.0},
+  "cases": [{"composition": [0.5, 0.5], "temperature_k": 351.45, "gamma_range": [1.0, 3.0]}]
+}

@@ -1,0 +1,17 @@
+[package]
+name = "tpt-proc-topology"
+description = "Process flow diagram graph analysis: recycle detection, topological ordering, tear streams, connected components"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["process-engineering", "graph", "flowsheet"]
+categories = ["science", "graph-algorithms"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+
+[lints]
+workspace = true

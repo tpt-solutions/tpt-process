@@ -1,0 +1,53 @@
+# cargo-deny configuration for tpt-process.
+#
+# The project ships under MIT OR Apache-2.0 and must keep a strict permissive
+# license chain: no copyleft, no unlicensed crates, no " unspecified" free
+# licenses. See spec section 8 ("MIT Chain Enforcement").
+
+[graph]
+all-features = true
+
+[licenses]
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "CDLA-Permissive-2.0",
+]
+# Reject copyleft licenses (GPL, AGPL, MPL, EPL, ...).
+copyleft = "deny"
+unlicensed = "deny"
+allow-osi-fsf-free = "neither"
+default = "deny"
+
+[[licenses.clarify]]
+name = "unicode-ident"
+expression = "(MIT OR Apache-2.0) AND Unicode-3.0"
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+deny = [
+    # Guard against accidentally pulling in GPL-ecosystem transitive deps.
+    { name = "openssl-sys" },
+]
+
+[advisories]
+version = 2
+yanked = "warn"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+    "https://github.com/tpt-solutions/tpt-energy",
+    "https://github.com/tpt-solutions/tpt-materials",
+    "https://github.com/tpt-solutions/tpt-construction",
+]

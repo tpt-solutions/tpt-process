@@ -1,0 +1,51 @@
+name: Docs
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTDOCFLAGS: -D warnings
+
+jobs:
+  build:
+    name: Build docs (rustdoc + book)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build rustdoc for the workspace
+        run: cargo doc --workspace --all-features --no-deps
+      - name: Assemble documentation site
+        run: |
+          mkdir -p site
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=tpt_proc_core/"></head><body></body></html>' > site/index.html
+          cp -r target/doc/* site/
+          if [ -d docs/book/html ]; then cp -r docs/book/html site/book; fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

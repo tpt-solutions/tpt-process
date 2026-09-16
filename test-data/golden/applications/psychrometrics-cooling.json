@@ -1,0 +1,7 @@
+{
+  "description": "ASHRAE-style psychrometrics at 1 atm",
+  "cases": [
+    {"dry_bulb_k": 293.15, "rh": 0.5, "humidity_ratio": 0.00726, "tolerance": 2e-4},
+    {"dry_bulb_k": 293.15, "rh": 0.5, "dew_point_k": 282.4, "tolerance": 1.5}
+  ]
+}

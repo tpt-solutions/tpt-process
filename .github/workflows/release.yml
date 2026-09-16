@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish all crates to crates.io in dependency order"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Verify the workspace is release-clean
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --workspace --all-targets -- -D warnings
+          cargo test --workspace --all-features
+          cargo deny check licenses bans
+
+      - name: Create GitHub release for tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+
+      - name: Publish crates in dependency order
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          # Leaf crates first, orchestrators last.
+          CRATES=(
+            tpt-proc-core
+            tpt-proc-topology
+            tpt-proc-units
+            tpt-proc-thermo-core
+            tpt-proc-thermo-eos
+            tpt-proc-thermo-activity
+            tpt-proc-thermo-database
+            tpt-proc-thermo-phase
+            tpt-proc-fluid
+            tpt-proc-pumps
+            tpt-proc-compressors
+            tpt-proc-valves
+            tpt-proc-network
+            tpt-proc-heat-transfer
+            tpt-proc-heat-exchangers
+            tpt-proc-heat-network
+            tpt-proc-fired-equipment
+            tpt-proc-distillation
+            tpt-proc-absorption
+            tpt-proc-extraction
+            tpt-proc-membranes
+            tpt-proc-crystallization
+            tpt-proc-reaction
+            tpt-proc-reactors
+            tpt-proc-catalysis
+            tpt-proc-mass-balance
+            tpt-proc-energy-balance
+            tpt-proc-optimization
+            tpt-proc-flowsheet
+            tpt-proc-hvac
+            tpt-proc-water
+            tpt-proc-hydrogen
+            tpt-proc-dynamics
+            tpt-proc-control
+            tpt-proc-pharma
+            tpt-proc-refining
+            tpt-proc-database
+            tpt-proc-pfd
+            tpt-proc-economics
+            tpt-proc-wasm
+          )
+          for crate in "${CRATES[@]}"; do
+            if cargo package -p "$crate" --allow-dirty >/dev/null 2>&1; then
+              cargo publish -p "$crate" --locked
+              sleep 15  # allow crates.io index to settle before dependents
+            else
+              echo "::warning::Skipping $crate — packaging failed"
+            fi
+          done

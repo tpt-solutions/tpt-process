@@ -1,0 +1,18 @@
+[package]
+name = "tpt-proc-thermo-activity"
+description = "Activity coefficient models: Wilson, NRTL, UNIQUAC, UNIFAC"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["thermodynamics", "nrtl", "unifac", "activity-coefficient"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+
+[lints]
+workspace = true

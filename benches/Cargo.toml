@@ -1,0 +1,43 @@
+[package]
+name = "tpt-process-benches"
+description = "Criterion benchmarks for the tpt-process solvers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-database = { workspace = true }
+tpt-proc-thermo-eos = { workspace = true }
+tpt-proc-thermo-phase = { workspace = true }
+tpt-proc-distillation = { workspace = true }
+tpt-proc-fluid = { workspace = true }
+tpt-proc-network = { workspace = true }
+tpt-proc-heat-exchangers = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "pr-flash"
+harness = false
+
+[[bench]]
+name = "distillation-mesh"
+harness = false
+
+[[bench]]
+name = "network-solver"
+harness = false
+
+[[bench]]
+name = "heat-exchanger-rating"
+harness = false
+
+[lints]
+workspace = true

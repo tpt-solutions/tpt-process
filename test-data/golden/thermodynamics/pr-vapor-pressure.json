@@ -1,0 +1,12 @@
+{
+  "description": "Peng-Robinson pure-component saturation pressures vs reference data",
+  "reference": "NIST WebBook / DIPPR correlations",
+  "tolerance_percent": 5.0,
+  "cases": [
+    {"component": "water", "temperature_k": 373.15, "expected_pa": 101325.0},
+    {"component": "benzene", "temperature_k": 353.25, "expected_pa": 101325.0},
+    {"component": "toluene", "temperature_k": 383.75, "expected_pa": 101325.0},
+    {"component": "propane", "temperature_k": 231.04, "expected_pa": 101325.0},
+    {"component": "methane", "temperature_k": 111.67, "expected_pa": 101325.0}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "description": "Quadratic pump vs system curve; analytic crossing",
+  "pump_curve": {"shutoff_head_m": 30.0, "a": 0.0, "b": -8000.0},
+  "system_curve": {"static_head_m": 10.0, "k": 8000.0},
+  "expected_flow_m3s": 0.035355339059327376,
+  "expected_head_m": 20.0,
+  "tolerance": 1e-10
+}

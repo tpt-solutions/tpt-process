@@ -1,0 +1,19 @@
+[package]
+name = "tpt-proc-construction"
+description = "Bridge from tpt-process PFDs into tpt-construction site and project models"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde_json = { workspace = true }
+tpt-c-core = { workspace = true }
+tpt-c-ids = { workspace = true }
+tpt-c-model = { workspace = true }
+tpt-proc-pfd = { workspace = true }
+
+[lints]
+workspace = true

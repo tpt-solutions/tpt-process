@@ -1,0 +1,18 @@
+[package]
+name = "tpt-proc-compressors"
+description = "Gas compression: isentropic and polytropic head, work, discharge temperature"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["compressor", "gas", "process-engineering"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-fluid = { workspace = true }
+
+[lints]
+workspace = true

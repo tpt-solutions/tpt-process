@@ -1,0 +1,7 @@
+{
+  "description": "Counter-current effectiveness at Cr = 1: eps = NTU/(1+NTU)",
+  "cases": [
+    {"ua_w_k": 100.0, "c_min_w_k": 1000.0, "c_max_w_k": 1000.0, "expected_epsilon": 0.09090909090909091}
+  ],
+  "tolerance": 1e-9
+}

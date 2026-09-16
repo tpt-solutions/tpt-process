@@ -1,0 +1,5 @@
+{
+  "description": "Conventional train + RO on model raw water",
+  "raw": {"turbidity_ntu": 28.0, "tds_mg_l": 850.0, "hardness_mg_l": 240.0, "coliform_cfu_ml": 50000.0},
+  "product_limits": {"turbidity_ntu": 1.0, "tds_mg_l": 42.5, "coliform_cfu_ml": 1.0}
+}

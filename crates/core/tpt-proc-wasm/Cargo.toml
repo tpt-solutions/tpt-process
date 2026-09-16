@@ -1,0 +1,24 @@
+[package]
+name = "tpt-proc-wasm"
+description = "WebAssembly bindings for the tpt-process engineering suite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { workspace = true }
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-database = { workspace = true }
+tpt-proc-thermo-eos = { workspace = true }
+tpt-proc-thermo-phase = { workspace = true }
+tpt-proc-heat-exchangers = { workspace = true }
+
+[lints]
+workspace = true

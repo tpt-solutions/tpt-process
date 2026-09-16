@@ -1,0 +1,7 @@
+{
+  "description": "Pure-component bubble/dew points at 1 atm (PR EOS), 3 K tolerance",
+  "cases": [
+    {"component": "benzene", "pressure_pa": 101325.0, "expected_k": 353.25},
+    {"component": "toluene", "pressure_pa": 101325.0, "expected_k": 383.75}
+  ]
+}

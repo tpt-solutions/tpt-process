@@ -1,0 +1,24 @@
+[package]
+name = "example-flash-calculation"
+description = "Worked example: flash-calculation (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-flash-calculation"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-database = { workspace = true }
+tpt-proc-thermo-eos = { workspace = true }
+tpt-proc-thermo-phase = { workspace = true }
+
+[lints]
+workspace = true

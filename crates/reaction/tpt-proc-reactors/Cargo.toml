@@ -1,0 +1,16 @@
+[package]
+name = "tpt-proc-reactors"
+description = "Reactor models: batch, CSTR, PFR, packed bed with energy balance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-reaction = { workspace = true }
+
+[lints]
+workspace = true

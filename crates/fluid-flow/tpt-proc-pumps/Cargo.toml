@@ -1,0 +1,18 @@
+[package]
+name = "tpt-proc-pumps"
+description = "Centrifugal pump modeling: curves, operating point, affinity laws, NPSH"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["pump", "hydraulics", "process-engineering"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-fluid = { workspace = true }
+
+[lints]
+workspace = true

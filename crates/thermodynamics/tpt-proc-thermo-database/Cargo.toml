@@ -1,0 +1,19 @@
+[package]
+name = "tpt-proc-thermo-database"
+description = "Built-in open chemical property database: critical constants, ideal-gas Cp, binary interaction parameters"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["thermodynamics", "database", "chemical"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-eos = { workspace = true }
+
+[lints]
+workspace = true

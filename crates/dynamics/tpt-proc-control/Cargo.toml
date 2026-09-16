@@ -1,0 +1,18 @@
+[package]
+name = "tpt-proc-control"
+description = "PID control and tuning rules"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+
+[dev-dependencies]
+tpt-proc-dynamics = { workspace = true }
+
+[lints]
+workspace = true

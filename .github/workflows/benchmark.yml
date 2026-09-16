@@ -1,0 +1,27 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  benchmark:
+    name: Run criterion benches
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run all benchmarks (reduced sample time for CI)
+        run: cargo bench --workspace -- --measurement-time 2 --warm-up-time 0.5
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: criterion-output
+          path: target/criterion
+          retention-days: 30

@@ -1,0 +1,12 @@
+{
+  "description": "First-law identity and threshold behavior at dT_min = 10 K",
+  "streams": {
+    "hot": [[433.15, 318.15, 15.0], [493.15, 333.15, 25.0]],
+    "cold": [[318.15, 448.15, 10.0], [333.15, 408.15, 20.0]]
+  },
+  "expected": {
+    "min_heating_kw": 0.0,
+    "min_cooling_kw": 2925.0,
+    "pinch": null
+  }
+}

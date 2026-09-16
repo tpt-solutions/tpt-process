@@ -1,0 +1,7 @@
+{
+  "description": "FUG for a 50/50 binary at alpha 2.4, 95/95 split, R = 1.5",
+  "alpha": 2.4, "feed_x": 0.5, "lk_recovery": 0.95, "hk_recovery": 0.05, "reflux": 1.5,
+  "expected": {"n_min": 6.729355567487099, "r_min": 1.1857142857142857, "n_actual": 15.4},
+  "mccabe_expected_stages": 14.0,
+  "tolerance": 1e-6
+}

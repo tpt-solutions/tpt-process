@@ -1,0 +1,4 @@
+{
+  "description": "First-order CSTR: X = k*tau/(1+k*tau)",
+  "k_per_s": 0.5, "tau_s": 2.0, "expected_conversion": 0.5, "tolerance": 1e-6
+}

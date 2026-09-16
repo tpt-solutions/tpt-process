@@ -1,0 +1,17 @@
+[package]
+name = "tpt-proc-distillation"
+description = "Part of the tpt-process separations domain"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-database = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,5 @@
+{
+  "description": "Ea = 54.5 kJ/mol doubles the rate between 300 and 310 K",
+  "pre_exponential": 1.0e7, "activation_energy_j_mol": 54500.0,
+  "ratio_310_over_300": 2.0, "tolerance": 0.05
+}

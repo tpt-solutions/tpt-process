@@ -1,0 +1,20 @@
+[package]
+name = "example-hvac-psychrometrics"
+description = "Worked example: hvac-psychrometrics (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-hvac-psychrometrics"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-hvac = { workspace = true }
+
+[lints]
+workspace = true

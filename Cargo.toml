@@ -1,0 +1,152 @@
+[workspace]
+resolver = "2"
+members = [
+    # Domain 1: Core & topology
+    "crates/core/tpt-proc-core",
+    "crates/core/tpt-proc-topology",
+    "crates/core/tpt-proc-units",
+    "crates/core/tpt-proc-wasm",
+    # Domain 2: Thermodynamics
+    "crates/thermodynamics/tpt-proc-thermo-core",
+    "crates/thermodynamics/tpt-proc-thermo-eos",
+    "crates/thermodynamics/tpt-proc-thermo-activity",
+    "crates/thermodynamics/tpt-proc-thermo-database",
+    "crates/thermodynamics/tpt-proc-thermo-phase",
+    # Domain 3: Fluid flow
+    "crates/fluid-flow/tpt-proc-fluid",
+    "crates/fluid-flow/tpt-proc-pumps",
+    "crates/fluid-flow/tpt-proc-compressors",
+    "crates/fluid-flow/tpt-proc-valves",
+    "crates/fluid-flow/tpt-proc-network",
+    # Domain 4: Heat transfer
+    "crates/heat-transfer/tpt-proc-heat-transfer",
+    "crates/heat-transfer/tpt-proc-heat-exchangers",
+    "crates/heat-transfer/tpt-proc-heat-network",
+    "crates/heat-transfer/tpt-proc-fired-equipment",
+    # Domain 5: Separations
+    "crates/separations/tpt-proc-distillation",
+    "crates/separations/tpt-proc-absorption",
+    "crates/separations/tpt-proc-extraction",
+    "crates/separations/tpt-proc-membranes",
+    "crates/separations/tpt-proc-crystallization",
+    # Domain 6: Reaction engineering
+    "crates/reaction/tpt-proc-reaction",
+    "crates/reaction/tpt-proc-reactors",
+    "crates/reaction/tpt-proc-catalysis",
+    # Domain 7: Process simulation
+    "crates/simulation/tpt-proc-flowsheet",
+    "crates/simulation/tpt-proc-mass-balance",
+    "crates/simulation/tpt-proc-energy-balance",
+    "crates/simulation/tpt-proc-optimization",
+    # Domain 8: Applications
+    "crates/applications/tpt-proc-hvac",
+    "crates/applications/tpt-proc-water",
+    "crates/applications/tpt-proc-pharma",
+    "crates/applications/tpt-proc-refining",
+    "crates/applications/tpt-proc-hydrogen",
+    # Domain 9: Dynamics & control
+    "crates/dynamics/tpt-proc-dynamics",
+    "crates/dynamics/tpt-proc-control",
+    # Domain 9: Data & deliverables
+    "crates/data/tpt-proc-database",
+    "crates/data/tpt-proc-pfd",
+    "crates/data/tpt-proc-economics",
+    # Cross-repo integration (pinned git deps on the TPT substrate repos)
+    "crates/integration/tpt-proc-energy",
+    "crates/integration/tpt-proc-materials",
+    "crates/integration/tpt-proc-construction",
+    # Benches
+    "benches",
+
+    # Examples (each a tiny binary crate)
+    "examples/flash-calculation",
+    "examples/heat-exchanger-rating",
+    "examples/binary-distillation",
+    "examples/cstr-reactor",
+    "examples/pinch-analysis",
+    "examples/hvac-psychrometrics",
+    "examples/water-treatment-plant",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.84"
+license = "MIT OR Apache-2.0"
+authors = ["TPT Solutions <opensource@tpt-solutions.example>"]
+repository = "https://github.com/tpt-solutions/tpt-process"
+homepage = "https://github.com/tpt-solutions/tpt-process"
+
+# The TPT substrate repositories. Pinned revisions keep the suite
+# reproducible; bump deliberately when the substrate APIs move.
+[workspace.dependencies]
+# TPT substrate repositories (git, pinned revisions)
+tpt-nrg-core = { git = "https://github.com/tpt-solutions/tpt-energy", rev = "9c3043739d6301d4ec6ecf1cb63d925b6bbbe51f" }
+tpt-mat-core = { git = "https://github.com/tpt-solutions/tpt-materials", rev = "6bf2d3da182b6d9cc8092752c55c861ca99be113" }
+tpt-c-core = { git = "https://github.com/tpt-solutions/tpt-construction", rev = "3e798ea7887f090db09e26dfd230fc43688bb6d6" }
+tpt-c-ids = { git = "https://github.com/tpt-solutions/tpt-construction", rev = "3e798ea7887f090db09e26dfd230fc43688bb6d6" }
+tpt-c-model = { git = "https://github.com/tpt-solutions/tpt-construction", rev = "3e798ea7887f090db09e26dfd230fc43688bb6d6" }
+# Internal crates (single source of truth for intra-workspace paths)
+tpt-proc-core = { path = "crates/core/tpt-proc-core", version = "0.1.0" }
+tpt-proc-topology = { path = "crates/core/tpt-proc-topology", version = "0.1.0" }
+tpt-proc-units = { path = "crates/core/tpt-proc-units", version = "0.1.0" }
+tpt-proc-thermo-core = { path = "crates/thermodynamics/tpt-proc-thermo-core", version = "0.1.0" }
+tpt-proc-thermo-eos = { path = "crates/thermodynamics/tpt-proc-thermo-eos", version = "0.1.0" }
+tpt-proc-thermo-activity = { path = "crates/thermodynamics/tpt-proc-thermo-activity", version = "0.1.0" }
+tpt-proc-thermo-database = { path = "crates/thermodynamics/tpt-proc-thermo-database", version = "0.1.0" }
+tpt-proc-thermo-phase = { path = "crates/thermodynamics/tpt-proc-thermo-phase", version = "0.1.0" }
+tpt-proc-dynamics = { path = "crates/dynamics/tpt-proc-dynamics", version = "0.1.0" }
+tpt-proc-control = { path = "crates/dynamics/tpt-proc-control", version = "0.1.0" }
+tpt-proc-fluid = { path = "crates/fluid-flow/tpt-proc-fluid", version = "0.1.0" }
+tpt-proc-pumps = { path = "crates/fluid-flow/tpt-proc-pumps", version = "0.1.0" }
+tpt-proc-compressors = { path = "crates/fluid-flow/tpt-proc-compressors", version = "0.1.0" }
+tpt-proc-valves = { path = "crates/fluid-flow/tpt-proc-valves", version = "0.1.0" }
+tpt-proc-network = { path = "crates/fluid-flow/tpt-proc-network", version = "0.1.0" }
+tpt-proc-heat-transfer = { path = "crates/heat-transfer/tpt-proc-heat-transfer", version = "0.1.0" }
+tpt-proc-heat-exchangers = { path = "crates/heat-transfer/tpt-proc-heat-exchangers", version = "0.1.0" }
+tpt-proc-heat-network = { path = "crates/heat-transfer/tpt-proc-heat-network", version = "0.1.0" }
+tpt-proc-fired-equipment = { path = "crates/heat-transfer/tpt-proc-fired-equipment", version = "0.1.0" }
+tpt-proc-distillation = { path = "crates/separations/tpt-proc-distillation", version = "0.1.0" }
+tpt-proc-absorption = { path = "crates/separations/tpt-proc-absorption", version = "0.1.0" }
+tpt-proc-extraction = { path = "crates/separations/tpt-proc-extraction", version = "0.1.0" }
+tpt-proc-membranes = { path = "crates/separations/tpt-proc-membranes", version = "0.1.0" }
+tpt-proc-crystallization = { path = "crates/separations/tpt-proc-crystallization", version = "0.1.0" }
+tpt-proc-reaction = { path = "crates/reaction/tpt-proc-reaction", version = "0.1.0" }
+tpt-proc-reactors = { path = "crates/reaction/tpt-proc-reactors", version = "0.1.0" }
+tpt-proc-catalysis = { path = "crates/reaction/tpt-proc-catalysis", version = "0.1.0" }
+tpt-proc-flowsheet = { path = "crates/simulation/tpt-proc-flowsheet", version = "0.1.0" }
+tpt-proc-mass-balance = { path = "crates/simulation/tpt-proc-mass-balance", version = "0.1.0" }
+tpt-proc-energy-balance = { path = "crates/simulation/tpt-proc-energy-balance", version = "0.1.0" }
+tpt-proc-optimization = { path = "crates/simulation/tpt-proc-optimization", version = "0.1.0" }
+tpt-proc-hvac = { path = "crates/applications/tpt-proc-hvac", version = "0.1.0" }
+tpt-proc-water = { path = "crates/applications/tpt-proc-water", version = "0.1.0" }
+tpt-proc-pharma = { path = "crates/applications/tpt-proc-pharma", version = "0.1.0" }
+tpt-proc-refining = { path = "crates/applications/tpt-proc-refining", version = "0.1.0" }
+tpt-proc-hydrogen = { path = "crates/applications/tpt-proc-hydrogen", version = "0.1.0" }
+tpt-proc-database = { path = "crates/data/tpt-proc-database", version = "0.1.0" }
+tpt-proc-pfd = { path = "crates/data/tpt-proc-pfd", version = "0.1.0" }
+tpt-proc-economics = { path = "crates/data/tpt-proc-economics", version = "0.1.0" }
+tpt-proc-wasm = { path = "crates/core/tpt-proc-wasm", version = "0.1.0" }
+
+# External dependencies (kept deliberately minimal; all MIT/Apache-2.0)
+wasm-bindgen = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+rust_2021_compatibility = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+# Solver code legitimately returns NaN/inf sentinels in places; comparisons
+# against them are handled with explicit helpers.
+float_cmp = "allow"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+[profile.bench]
+debug = true

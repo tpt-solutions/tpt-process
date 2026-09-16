@@ -1,0 +1,6 @@
+{
+  "description": "LMTD with terminal differences 50 K and 10 K",
+  "hot_in_k": 373.15, "hot_out_k": 303.15, "cold_in_k": 293.15, "cold_out_k": 323.15,
+  "expected_lmtd_k": 24.854608445133645,
+  "tolerance": 1e-6
+}

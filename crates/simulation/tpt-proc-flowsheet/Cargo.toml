@@ -1,0 +1,17 @@
+[package]
+name = "tpt-proc-flowsheet"
+description = "Sequential-modular flowsheet solver with tear streams and Wegstein acceleration"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+tpt-proc-topology = { workspace = true }
+tpt-proc-units = { workspace = true }
+
+[lints]
+workspace = true

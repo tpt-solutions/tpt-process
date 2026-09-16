@@ -1,0 +1,8 @@
+{
+  "description": "Binary flash of 50/50 water/methanol at 1 atm (PR EOS)",
+  "tolerance": 1e-6,
+  "cases": [
+    {"feed": [0.5, 0.5], "temperature_k": 350.0, "pressure_pa": 101325.0,
+     "vapor_fraction": 0.7889, "liquid": [0.9698, 0.0302], "vapor": [0.3743, 0.6257]}
+  ]
+}

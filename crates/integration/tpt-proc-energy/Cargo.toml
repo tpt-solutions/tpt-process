@@ -1,0 +1,16 @@
+[package]
+name = "tpt-proc-energy"
+description = "Bridge from tpt-process pinch/utility results into tpt-energy system models"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tpt-nrg-core = { workspace = true }
+tpt-proc-heat-network = { workspace = true }
+
+[lints]
+workspace = true

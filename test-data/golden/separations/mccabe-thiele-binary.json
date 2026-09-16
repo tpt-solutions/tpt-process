@@ -1,0 +1,6 @@
+{
+  "description": "McCabe-Thiele for the FUG case: ~14 stages, feed ~7",
+  "alpha": 2.4, "x_distillate": 0.95, "x_bottoms": 0.05, "reflux": 1.5,
+  "expected_stages": 14.0, "expected_feed_stage": 7.0,
+  "tolerance_stages": 1.0
+}

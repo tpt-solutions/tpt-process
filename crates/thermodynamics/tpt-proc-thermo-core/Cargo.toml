@@ -1,0 +1,17 @@
+[package]
+name = "tpt-proc-thermo-core"
+description = "Thermodynamic property framework: components, ideal-gas heat capacities, property packages, model traits"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["thermodynamics", "process-engineering", "chemical"]
+categories = ["science"]
+
+[dependencies]
+tpt-proc-core = { workspace = true }
+
+[lints]
+workspace = true
