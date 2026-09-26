@@ -78,12 +78,15 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: llvm-tools-preview
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-llvm-cov
-      - name: Generate coverage (unit + doc tests)
-        run: |
-          cargo llvm-cov --all-features --lcov --output-path lcov.info
-          cargo llvm-cov --doc --all-features --lcov --output-path lcov-doc.info
+      - name: Generate coverage (unit tests)
+        run: cargo +stable llvm-cov --all-features --lcov --output-path lcov.info
+      - name: Generate coverage (doc tests, requires nightly)
+        run: cargo +nightly llvm-cov --doc --all-features --lcov --output-path lcov-doc.info
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info,lcov-doc.info
