@@ -14,6 +14,7 @@ use crate::units::UnitOperation;
 /// `from == None` marks a boundary feed (no producing unit);
 /// `to == None` marks a product withdrawal (no consuming unit).
 /// At least one endpoint must be set.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Connection {
     /// Source (unit, port), or `None` for a boundary feed.
@@ -66,6 +67,13 @@ impl Connection {
 ///
 /// Maps are ordered (`BTreeMap`), so iteration and graph analysis are
 /// deterministic regardless of insertion order.
+///
+/// With the `serde` feature, a flowsheet serializes to and from plain
+/// data (JSON, TOML, …). The attached [`PropertyPackage`] is a trait
+/// object and is deliberately **not** serialized (`serde(skip)`); after
+/// deserializing, re-attach a package with
+/// [`Flowsheet::set_property_package`].
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Default)]
 pub struct Flowsheet {
     id: FlowsheetId,
@@ -73,6 +81,7 @@ pub struct Flowsheet {
     streams: BTreeMap<StreamId, MaterialStream>,
     units: BTreeMap<UnitId, UnitOperation>,
     connections: Vec<Connection>,
+    #[cfg_attr(feature = "serde", serde(skip))]
     property_package: Option<Arc<dyn PropertyPackage>>,
 }
 
@@ -407,5 +416,86 @@ mod tests {
         assert!(fs
             .connect(UnitId(0), PortId(0), UnitId(0), PortId(1), StreamId(0))
             .is_err());
+    }
+}
+
+#[cfg(all(test, feature = "serde"))]
+mod serde_tests {
+    use super::*;
+    use crate::composition::Composition;
+    use crate::stream::{FlowRate, PhaseState};
+    use crate::units::UnitOperation;
+
+    fn sample_flowsheet() -> Flowsheet {
+        let mut fs = Flowsheet::new(3, "serde sample");
+        let mk = |id: u64, name: &str, flow: f64| {
+            MaterialStream::new(id, name)
+                .with_state(300.0, 101_325.0)
+                .unwrap()
+                .with_flow(FlowRate::Molar(flow))
+                .unwrap()
+                .with_composition(Composition::from_mole_fractions(&[1.0]).unwrap())
+                .with_phase(PhaseState::Liquid)
+        };
+        fs.add_stream(mk(1, "fresh", 100.0));
+        fs.add_stream(mk(2, "mixed", 0.0));
+        fs.add_unit(UnitOperation::Mixer {
+            id: UnitId(1),
+            inlets: 2,
+        });
+        fs.feed(UnitId(1), PortId(0), StreamId(1)).unwrap();
+        fs
+    }
+
+    #[test]
+    fn flowsheet_json_roundtrip() {
+        let fs = sample_flowsheet();
+        let json = serde_json::to_string(&fs).unwrap();
+        let back: Flowsheet = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.name(), "serde sample");
+        assert_eq!(back.streams().count(), fs.streams().count());
+        assert_eq!(back.units().count(), fs.units().count());
+        assert_eq!(back.connections(), fs.connections());
+
+        let original = fs.stream(StreamId(1)).unwrap();
+        let restored = back.stream(StreamId(1)).unwrap();
+        assert_eq!(original.id(), restored.id());
+        assert_eq!(original.name(), restored.name());
+        assert_eq!(original.temperature(), restored.temperature());
+        assert_eq!(original.pressure(), restored.pressure());
+        assert_eq!(original.flow_rate(), restored.flow_rate());
+        assert_eq!(original.composition(), restored.composition());
+        assert_eq!(original.phase(), restored.phase());
+        assert_eq!(
+            original.properties().is_complete(),
+            restored.properties().is_complete()
+        );
+    }
+
+    #[test]
+    fn unit_operation_roundtrip() {
+        let unit = UnitOperation::Splitter {
+            id: UnitId(9),
+            split_ratios: vec![0.8, 0.2],
+        };
+        let json = serde_json::to_string(&unit).unwrap();
+        let back: UnitOperation = serde_json::from_str(&json).unwrap();
+        assert_eq!(unit, back);
+    }
+
+    #[test]
+    fn unset_fields_survive_json_without_nan() {
+        let mut fs = Flowsheet::new(7, "bare");
+        fs.add_stream(MaterialStream::new(1, "s1"));
+        let json = serde_json::to_string(&fs).unwrap();
+        assert!(
+            !json.contains("NaN"),
+            "JSON must not carry bare NaN: {json}"
+        );
+        let back: Flowsheet = serde_json::from_str(&json).unwrap();
+        let s = back.stream(StreamId(1)).unwrap();
+        assert!(s.temperature().is_nan());
+        assert!(s.flow_rate().is_none());
+        assert!(s.composition().is_none());
     }
 }

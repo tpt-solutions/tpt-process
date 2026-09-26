@@ -1,12 +1,15 @@
 [package]
 name = "tpt-proc-heat-transfer"
 description = "Part of the tpt-process heat transfer domain"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
+keywords = ["heat-transfer", "convection", "nusselt", "conduction"]
+categories = ["science", "simulation"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

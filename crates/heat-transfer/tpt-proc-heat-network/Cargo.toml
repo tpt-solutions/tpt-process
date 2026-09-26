@@ -1,12 +1,15 @@
 [package]
 name = "tpt-proc-heat-network"
 description = "Part of the tpt-process heat transfer domain"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
+keywords = ["pinch-analysis", "heat-integration", "composite-curves", "hen"]
+categories = ["science", "simulation", "algorithms"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

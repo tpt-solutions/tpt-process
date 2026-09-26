@@ -9,6 +9,7 @@
 use crate::ids::UnitId;
 
 /// Configuration of a shell-and-tube or generic heat exchanger.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct HeatExchangerConfig {
     /// Heat-transfer area, m².
@@ -23,6 +24,7 @@ pub struct HeatExchangerConfig {
 }
 
 /// Configuration of a centrifugal or positive-displacement pump.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct PumpConfig {
     /// Pump curve head coefficients `H(Q) = a + b·Q + c·Q²` with H in m and
@@ -37,6 +39,7 @@ pub struct PumpConfig {
 }
 
 /// Configuration of a compressor (fan/blower/compressor).
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct CompressorConfig {
     /// Adiabatic (isentropic) efficiency in (0, 1].
@@ -48,6 +51,7 @@ pub struct CompressorConfig {
 }
 
 /// Configuration of a control or isolation valve.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ValveConfig {
     /// Flow coefficient Cv (US units, gpm water at 1 psi ΔP).
@@ -59,6 +63,7 @@ pub struct ValveConfig {
 }
 
 /// Inherent flow characteristic of a valve.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ValveCharacteristic {
     /// Cv proportional to opening.
@@ -70,6 +75,7 @@ pub enum ValveCharacteristic {
 }
 
 /// Configuration of a chemical reactor.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ReactorConfig {
     /// Reactor mode.
@@ -83,6 +89,7 @@ pub struct ReactorConfig {
 }
 
 /// Reactor topology.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ReactorMode {
     /// Stirred tank, steady state.
@@ -96,6 +103,7 @@ pub enum ReactorMode {
 }
 
 /// Reactor energy mode.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ReactorThermal {
     /// No heat exchange with surroundings.
@@ -107,6 +115,7 @@ pub enum ReactorThermal {
 }
 
 /// Configuration of a distillation or absorption column.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ColumnConfig {
     /// Number of equilibrium stages (including reboiler/condenser as
@@ -121,6 +130,7 @@ pub struct ColumnConfig {
 }
 
 /// Configuration of a gas absorber / stripper.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct AbsorberConfig {
     /// Number of theoretical stages.
@@ -132,6 +142,7 @@ pub struct AbsorberConfig {
 }
 
 /// Configuration of a crystallizer.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct CrystallizerConfig {
     /// Operating temperature, K.
@@ -146,6 +157,7 @@ pub struct CrystallizerConfig {
 ///
 /// The enum variants carry only design data; behavior is provided by the
 /// `tpt-proc-units` trait implementations and the physics crates.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum UnitOperation {
     /// Adiabatic merger of two or more streams.

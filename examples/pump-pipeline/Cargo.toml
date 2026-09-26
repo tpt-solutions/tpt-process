@@ -1,0 +1,23 @@
+[package]
+name = "example-pump-pipeline"
+description = "Worked example: pump-pipeline (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-pump-pipeline"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-fluid = { workspace = true }
+tpt-proc-pumps = { workspace = true }
+tpt-proc-valves = { workspace = true }
+tpt-proc-compressors = { workspace = true }
+
+[lints]
+workspace = true

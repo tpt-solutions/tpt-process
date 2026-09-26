@@ -51,6 +51,8 @@ members = [
     "crates/data/tpt-proc-database",
     "crates/data/tpt-proc-pfd",
     "crates/data/tpt-proc-economics",
+    # CLI (config-driven flowsheet runner)
+    "crates/cli/tpt-proc",
     # Cross-repo integration (pinned git deps on the TPT substrate repos)
     "crates/integration/tpt-proc-energy",
     "crates/integration/tpt-proc-materials",
@@ -66,6 +68,93 @@ members = [
     "examples/pinch-analysis",
     "examples/hvac-psychrometrics",
     "examples/water-treatment-plant",
+    "examples/absorption-column",
+    "examples/crystallizer",
+    "examples/liquid-extraction",
+    "examples/membrane-separation",
+    "examples/pipe-network",
+    "examples/pfr-packed-bed",
+    "examples/project-economics",
+    "examples/pump-pipeline",
+]
+
+# Daily commands (`cargo build`, `cargo test`, …) operate on the core suite
+# only. The `crates/integration/*` bridges depend on git-pinned TPT
+# substrate repositories and are deliberately opt-in: build or test them
+# with `cargo build --workspace`, `-p tpt-proc-energy`, and so on. CI runs
+# `--workspace` explicitly, so they remain fully covered there.
+default-members = [
+    # Domain 1: Core & topology
+    "crates/core/tpt-proc-core",
+    "crates/core/tpt-proc-topology",
+    "crates/core/tpt-proc-units",
+    "crates/core/tpt-proc-wasm",
+    # Domain 2: Thermodynamics
+    "crates/thermodynamics/tpt-proc-thermo-core",
+    "crates/thermodynamics/tpt-proc-thermo-eos",
+    "crates/thermodynamics/tpt-proc-thermo-activity",
+    "crates/thermodynamics/tpt-proc-thermo-database",
+    "crates/thermodynamics/tpt-proc-thermo-phase",
+    # Domain 3: Fluid flow
+    "crates/fluid-flow/tpt-proc-fluid",
+    "crates/fluid-flow/tpt-proc-pumps",
+    "crates/fluid-flow/tpt-proc-compressors",
+    "crates/fluid-flow/tpt-proc-valves",
+    "crates/fluid-flow/tpt-proc-network",
+    # Domain 4: Heat transfer
+    "crates/heat-transfer/tpt-proc-heat-transfer",
+    "crates/heat-transfer/tpt-proc-heat-exchangers",
+    "crates/heat-transfer/tpt-proc-heat-network",
+    "crates/heat-transfer/tpt-proc-fired-equipment",
+    # Domain 5: Separations
+    "crates/separations/tpt-proc-distillation",
+    "crates/separations/tpt-proc-absorption",
+    "crates/separations/tpt-proc-extraction",
+    "crates/separations/tpt-proc-membranes",
+    "crates/separations/tpt-proc-crystallization",
+    # Domain 6: Reaction engineering
+    "crates/reaction/tpt-proc-reaction",
+    "crates/reaction/tpt-proc-reactors",
+    "crates/reaction/tpt-proc-catalysis",
+    # Domain 7: Process simulation
+    "crates/simulation/tpt-proc-flowsheet",
+    "crates/simulation/tpt-proc-mass-balance",
+    "crates/simulation/tpt-proc-energy-balance",
+    "crates/simulation/tpt-proc-optimization",
+    # Domain 8: Applications
+    "crates/applications/tpt-proc-hvac",
+    "crates/applications/tpt-proc-water",
+    "crates/applications/tpt-proc-pharma",
+    "crates/applications/tpt-proc-refining",
+    "crates/applications/tpt-proc-hydrogen",
+    # Domain 9: Dynamics & control
+    "crates/dynamics/tpt-proc-dynamics",
+    "crates/dynamics/tpt-proc-control",
+    # Domain 9: Data & deliverables
+    "crates/data/tpt-proc-database",
+    "crates/data/tpt-proc-pfd",
+    "crates/data/tpt-proc-economics",
+    # CLI
+    "crates/cli/tpt-proc",
+    # Benches
+    "benches",
+
+    # Examples (each a tiny binary crate)
+    "examples/flash-calculation",
+    "examples/heat-exchanger-rating",
+    "examples/binary-distillation",
+    "examples/cstr-reactor",
+    "examples/pinch-analysis",
+    "examples/hvac-psychrometrics",
+    "examples/water-treatment-plant",
+    "examples/absorption-column",
+    "examples/crystallizer",
+    "examples/liquid-extraction",
+    "examples/membrane-separation",
+    "examples/pipe-network",
+    "examples/pfr-packed-bed",
+    "examples/project-economics",
+    "examples/pump-pipeline",
 ]
 
 [workspace.package]

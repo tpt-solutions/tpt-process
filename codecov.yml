@@ -1,0 +1,24 @@
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        informational: true
+    patch:
+      default:
+        target: 80%
+        informational: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+
+# The chemical database baseline test and golden-file comparisons are the
+# accuracy authority; coverage is a visibility tool, not a gate.
+ignore:
+  - "examples"
+  - "benches"
+  - "docs"

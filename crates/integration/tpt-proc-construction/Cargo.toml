@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-construction"
 description = "Bridge from tpt-process PFDs into tpt-construction site and project models"
+readme = "README.md"
+keywords = ["construction", "site-layout", "plant-layout", "integration"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

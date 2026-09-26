@@ -1,14 +1,15 @@
 [package]
 name = "tpt-proc-pumps"
 description = "Centrifugal pump modeling: curves, operating point, affinity laws, NPSH"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-keywords = ["pump", "hydraulics", "process-engineering"]
-categories = ["science"]
+keywords = ["pump", "centrifugal", "pump-curve", "affinity-laws"]
+categories = ["science", "simulation"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

@@ -1,0 +1,106 @@
+//! {{ project-name }}: a {{ unit_kind }} unit operation for the
+//! `tpt-process` suite.
+//!
+//! The crate implements [`UnitBehavior`] — the same contract
+//! `tpt-proc-units`' `Mixer` and `Splitter` fulfill — so the unit drops
+//! straight into a `UnitRegistry` and runs inside a
+//! `tpt-proc-flowsheet` `FlowsheetSolver`.
+//!
+//! # Example
+//!
+//! ```
+//! use std::sync::Arc;
+//! use tpt_proc_core::{FlowRate, MaterialStream, UnitId};
+//! use tpt_proc_units::UnitRegistry;
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let mut registry = UnitRegistry::new();
+//! registry.register(UnitId(1), Arc::new({{ project-name | snake_case }}::{{ project-name | pascal_case }}::default()));
+//! # let _ = registry;
+//! # Ok(())
+//! # }
+//! ```
+
+#![forbid(unsafe_code)]
+
+use tpt_proc_core::MaterialStream;
+use tpt_proc_units::{UnitBehavior, UnitError};
+
+/// The {{ unit_kind }} unit: map inlet streams to outlet streams.
+///
+/// Fill in the physics between the markers below; keep the trait contract —
+/// `kind`, `num_inlets`, `num_outlets` — consistent with `solve`, return
+/// `UnitError` instead of panicking, and work in SI units.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct {{ project-name | pascal_case }};
+
+impl UnitBehavior for {{ project-name | pascal_case }} {
+    fn kind(&self) -> &'static str {
+        "{{ unit_kind }}"
+    }
+
+    fn num_inlets(&self) -> usize {
+        {{ inlets }}
+    }
+
+    fn num_outlets(&self) -> usize {
+        {{ outlets }}
+    }
+
+    fn solve(&self, inlets: &[MaterialStream]) -> Result<Vec<MaterialStream>, UnitError> {
+        if inlets.len() != self.num_inlets() {
+            return Err(UnitError::WrongInletCount {
+                expected: self.num_inlets(),
+                got: inlets.len(),
+            });
+        }
+
+        // BEGIN PHYSICS — replace with the unit's actual model.
+        // Example (identity): pass the first inlet through unchanged.
+        let outlets = vec![inlets[0].clone()];
+        // END PHYSICS
+
+        Ok(outlets)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tpt_proc_core::{Composition, FlowRate};
+
+    fn inlet() -> MaterialStream {
+        MaterialStream::new(1, "inlet")
+            .with_state(300.0, 101_325.0)
+            .unwrap()
+            .with_flow(FlowRate::Molar(100.0))
+            .unwrap()
+            .with_composition(Composition::from_mole_fractions(&[1.0]).unwrap())
+    }
+
+    #[test]
+    fn ports_match_trait_contract() {
+        let unit = {{ project-name | pascal_case }};
+        assert_eq!(unit.kind(), "{{ unit_kind }}");
+        assert_eq!(unit.num_inlets(), {{ inlets }});
+        assert_eq!(unit.num_outlets(), {{ outlets }});
+    }
+
+    #[test]
+    fn solve_returns_the_right_outlet_count() {
+        let unit = {{ project-name | pascal_case }};
+        let inlets = vec![inlet(); unit.num_inlets()];
+        let outlets = unit.solve(&inlets).unwrap();
+        assert_eq!(outlets.len(), unit.num_outlets());
+    }
+
+    #[test]
+    fn wrong_inlet_count_is_an_error_not_a_panic() {
+        let unit = {{ project-name | pascal_case }};
+        let outlets = unit.solve(&[]);
+        assert!(matches!(
+            outlets,
+            Err(UnitError::WrongInletCount { .. })
+        ));
+    }
+}

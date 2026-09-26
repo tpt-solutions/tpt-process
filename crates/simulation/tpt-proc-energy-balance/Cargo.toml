@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-energy-balance"
 description = "Energy accounting and utility summary across flowsheets"
+readme = "README.md"
+keywords = ["energy-balance", "utility", "duty", "process-engineering"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -10,10 +10,22 @@ env:
 
 jobs:
   cargo-deny:
-    name: cargo deny (licenses)
+    name: cargo deny (licenses, bans, sources)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: taiki-e/install-action@cargo-deny
       - name: Check license chain (MIT OR Apache-2.0 only)
-        run: cargo deny check licenses bans
+        run: cargo deny check licenses bans sources
+
+  cargo-deny-advisories:
+    name: cargo deny (security advisories)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@cargo-deny
+      # Advisory checks hit the RustSec advisory database, so they run as a
+      # separate non-blocking-aware job with its own fetch; failures here
+      # mean a dependency has a published vulnerability and must be triaged.
+      - name: Check RustSec advisories
+        run: cargo deny check advisories

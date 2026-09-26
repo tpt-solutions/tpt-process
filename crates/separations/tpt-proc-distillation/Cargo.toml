@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-distillation"
 description = "Part of the tpt-process separations domain"
+readme = "README.md"
+keywords = ["distillation", "mccabe-thiele", "fug", "mesh", "column"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

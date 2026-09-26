@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-mass-balance"
 description = "Mass balance accounting and weighted data reconciliation"
+readme = "README.md"
+keywords = ["mass-balance", "data-reconciliation", "material-balance"]
+categories = ["science", "simulation", "mathematics"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -27,7 +27,7 @@ use std::sync::Arc;
 
 use tpt_proc_core::Composition;
 use tpt_proc_core::PropertyPackage as _;
-use tpt_proc_thermo_core::{Component, PropertyPackage};
+use tpt_proc_thermo_core::{Component, PropertyPackage, ThermoError};
 
 mod mccabe;
 mod mesh;
@@ -148,8 +148,11 @@ pub fn fug_shortcut(spec: &FugSpec) -> Result<FugResult, String> {
 }
 
 /// Builds a benzene/toluene-like property package for column work.
-#[must_use]
-pub fn benzene_toluene_package() -> Arc<PropertyPackage> {
+///
+/// # Errors
+/// Returns [`ThermoError`] if the hard-coded component data ever fails
+/// validation (not expected; typed so library code stays panic-free).
+pub fn benzene_toluene_package() -> Result<Arc<PropertyPackage>, ThermoError> {
     let benzene = Component::new(
         "benzene",
         "71-43-2",
@@ -172,7 +175,7 @@ pub fn benzene_toluene_package() -> Arc<PropertyPackage> {
         383.75,
         tpt_proc_thermo_core::CpCorrelation::constant(103.8),
     );
-    Arc::new(PropertyPackage::new(vec![benzene, toluene]).expect("valid components"))
+    Ok(Arc::new(PropertyPackage::new(vec![benzene, toluene])?))
 }
 
 /// Equilibrium ratio of the light key to the heavy key from the package's
@@ -248,7 +251,7 @@ mod tests {
 
     #[test]
     fn benzene_toluene_relative_volatility_plausible() {
-        let package = benzene_toluene_package();
+        let package = benzene_toluene_package().expect("benzene/toluene data is valid");
         // At 365 K the Raoult α ≈ Psat_benzene/Psat_toluene ≈ 2.2–2.6.
         let alpha = relative_volatility_from_package(&package, 365.0);
         assert!((2.0..=3.0).contains(&alpha), "α = {alpha}");

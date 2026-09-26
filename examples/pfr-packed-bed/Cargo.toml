@@ -1,0 +1,22 @@
+[package]
+name = "example-pfr-packed-bed"
+description = "Worked example: pfr-packed-bed (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-pfr-packed-bed"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-reaction = { workspace = true }
+tpt-proc-reactors = { workspace = true }
+tpt-proc-catalysis = { workspace = true }
+
+[lints]
+workspace = true

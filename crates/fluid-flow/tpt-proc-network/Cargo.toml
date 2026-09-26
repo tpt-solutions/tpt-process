@@ -1,14 +1,15 @@
 [package]
 name = "tpt-proc-network"
 description = "Pipe network solvers: Hardy Cross, Newton-Raphson, Linear Theory"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-keywords = ["pipe-network", "hardy-cross", "hydraulics"]
-categories = ["science"]
+keywords = ["pipe-network", "hardy-cross", "newton-raphson", "hydraulics"]
+categories = ["science", "simulation", "algorithms"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

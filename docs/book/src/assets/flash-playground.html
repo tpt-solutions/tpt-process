@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tpt-process flash playground</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0; padding: 1rem; font-size: 14px; line-height: 1.45;
+  }
+  h1 { font-size: 1.05rem; margin: 0 0 0.75rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.6rem; }
+  label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; }
+  input {
+    font: inherit; padding: 0.3rem 0.45rem; width: 11rem;
+    border: 1px solid #999; border-radius: 4px;
+  }
+  button {
+    font: inherit; padding: 0.35rem 1.1rem; align-self: flex-end;
+    border: 1px solid #666; border-radius: 4px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: default; }
+  #status { margin: 0.5rem 0; font-size: 0.85rem; }
+  #status.err { color: #b00020; }
+  table { border-collapse: collapse; margin-top: 0.5rem; }
+  th, td { border: 1px solid #aaa; padding: 0.25rem 0.6rem; text-align: left; font-size: 0.85rem; }
+  th { background: rgba(127,127,127,0.12); }
+  code { font-size: 0.85rem; }
+  .hint { font-size: 0.8rem; opacity: 0.85; }
+  pre {
+    background: rgba(127,127,127,0.12); padding: 0.6rem; border-radius: 4px;
+    overflow-x: auto; font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<h1>PT flash playground (tpt-proc-wasm)</h1>
+
+<div id="status">Checking for the wasm module&hellip;</div>
+
+<div id="controls" hidden>
+  <div class="row">
+    <label>Components (whitespace-separated, built-in database)
+      <input id="components" value="water methanol" spellcheck="false">
+    </label>
+    <label>Mole fractions (comma-separated)
+      <input id="fractions" value="0.5, 0.5" spellcheck="false">
+    </label>
+  </div>
+  <div class="row">
+    <label>Temperature, K
+      <input id="temperature" type="number" value="350" step="1" min="1">
+    </label>
+    <label>Pressure, Pa
+      <input id="pressure" type="number" value="101325" step="1000" min="1">
+    </label>
+    <button id="run" disabled>Run PT flash</button>
+  </div>
+</div>
+
+<div id="results"></div>
+
+<div id="fallback" hidden>
+  <p><strong>Build the wasm package to enable the demo.</strong> This page
+  drives the real solvers through <code>tpt-proc-wasm</code>; it needs
+  <code>pkg/tpt_proc_wasm.js</code> (and the <code>.wasm</code> beside it) in
+  this file's directory. From the repository root:</p>
+  <pre>rustup target add wasm32-unknown-unknown
+cargo install wasm-pack
+wasm-pack build --target web crates/core/tpt-proc-wasm
+cp -r crates/core/tpt-proc-wasm/pkg docs/book/src/assets/pkg</pre>
+  <p class="hint">The book build copies <code>docs/book/src/assets/</code>
+  verbatim, so after the copy (and a page reload over a web server &mdash;
+  ES modules do not load from <code>file://</code>) the demo runs fully
+  offline.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var statusEl = document.getElementById("status");
+  var controlsEl = document.getElementById("controls");
+  var resultsEl = document.getElementById("results");
+  var fallbackEl = document.getElementById("fallback");
+  var runBtn = document.getElementById("run");
+
+  function showFallback(message) {
+    statusEl.hidden = true;
+    fallbackEl.hidden = false;
+    if (message) {
+      var p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = message;
+      fallbackEl.insertBefore(p, fallbackEl.firstChild);
+    }
+  }
+
+  function setStatus(text, isError) {
+    statusEl.hidden = false;
+    statusEl.textContent = text;
+    statusEl.className = isError ? "err" : "";
+  }
+
+  function describeError(e) {
+    if (e && typeof e.kind === "string" && typeof e.message === "string") {
+      return e.kind + ": " + e.message;   // WasmError across the boundary
+    }
+    if (e && e.message) { return String(e.message); }
+    return String(e);
+  }
+
+  function parseFractions(text, nComponents) {
+    var values = text.split(",").map(function (s) { return parseFloat(s.trim()); });
+    if (values.length !== nComponents || values.some(function (v) { return !isFinite(v); })) {
+      throw new Error("need " + nComponents + " comma-separated fractions");
+    }
+    var sum = values.reduce(function (a, b) { return a + b; }, 0);
+    if (Math.abs(sum - 1) > 1e-6) {
+      throw new Error("fractions must sum to 1 (got " + sum + ")");
+    }
+    return values;
+  }
+
+  function fmt(x, digits) {
+    return (typeof x === "number" && isFinite(x)) ? x.toFixed(digits) : String(x);
+  }
+
+  // Loads ./pkg/tpt_proc_wasm.js if present; resolves to null otherwise.
+  function loadModule() {
+    return fetch("./pkg/tpt_proc_wasm.js", { method: "HEAD" })
+      .then(function (resp) {
+        if (!resp.ok) { throw new Error("pkg not present (HTTP " + resp.status + ")"); }
+        return import("./pkg/tpt_proc_wasm.js");
+      })
+      .then(function (mod) {
+        if (mod && typeof mod.default === "function") { return mod.default().then(function () { return mod; }); }
+        return mod;
+      })
+      .catch(function (e) {
+        showFallback("(" + describeError(e) + ")");
+        return null;
+      });
+  }
+
+  function renderResult(names, r) {
+    var html = "<table>";
+    html += "<tr><th>quantity</th><th>value</th></tr>";
+    html += "<tr><td>vapor fraction &beta;</td><td>" + fmt(r.vapor_fraction, 4) + "</td></tr>";
+    html += "<tr><td>temperature</td><td>" + fmt(r.temperature, 2) + " K</td></tr>";
+    html += "<tr><td>pressure</td><td>" + fmt(r.pressure, 0) + " Pa</td></tr>";
+    html += "<tr><td>iterations</td><td>" + r.iterations + "</td></tr>";
+    html += "<tr><td>degenerate (pure-component)</td><td>" + r.degenerate + "</td></tr>";
+    html += "</table>";
+
+    var vapor = r.vapor_composition || [];
+    var liquid = r.liquid_composition || [];
+    if (vapor.length === names.length && liquid.length === names.length) {
+      html += "<table><tr><th>component</th><th>feed z</th><th>vapor y</th><th>liquid x</th></tr>";
+      names.forEach(function (n, i) {
+        html += "<tr><td>" + n + "</td><td></td><td>" + fmt(vapor[i], 4) + "</td><td>" + fmt(liquid[i], 4) + "</td></tr>";
+      });
+      html += "</table>";
+    }
+    resultsEl.innerHTML = html;
+  }
+
+  loadModule().then(function (mod) {
+    if (!mod) { return; } // fallback already shown
+    var Flash = mod.WasmFlashCalculator;
+    if (typeof Flash !== "function") {
+      showFallback("module loaded but WasmFlashCalculator is missing (stale pkg?)");
+      return;
+    }
+    var calc = null;
+    var currentSpec = null;
+
+    function getCalculator(spec) {
+      if (calc && currentSpec === spec) { return calc; }
+      currentSpec = spec;
+      calc = new Flash(spec); // may throw a WasmError for unknown names
+      return calc;
+    }
+
+    controlsEl.hidden = false;
+    setStatus("wasm module loaded. Peng-Robinson PT flash via tpt-proc-wasm.", false);
+    runBtn.disabled = false;
+
+    runBtn.addEventListener("click", function () {
+      resultsEl.textContent = "";
+      var names;
+      var fractions;
+      var t = parseFloat(document.getElementById("temperature").value);
+      var p = parseFloat(document.getElementById("pressure").value);
+      try {
+        names = document.getElementById("components").value.trim().split(/\s+/);
+        if (!names[0]) { throw new Error("component list must not be empty"); }
+        fractions = parseFractions(document.getElementById("fractions").value, names.length);
+        if (!isFinite(t) || t <= 0 || !isFinite(p) || p <= 0) {
+          throw new Error("temperature and pressure must be positive numbers");
+        }
+        var c = getCalculator(names.join(" "));
+        setStatus("flashing " + names.join(" / ") + " at " + t + " K, " + p + " Pa&hellip;", false);
+        var r = c.pt_flash(new Float64Array(fractions), t, p); // &[f64] -> Float64Array
+        setStatus("done (" + r.iterations + " iterations).", false);
+        renderResult(names, r);
+      } catch (e) {
+        setStatus(describeError(e), true);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+[template]
+description = "A new tpt-process unit-operation crate implementing the UnitBehavior trait"
+
+[placeholders]
+unit_kind = { type = "string", prompt = "Unit kind name for diagnostics (kebab-case, e.g. economizer)?", default = "my-unit" }
+inlets = { type = "string", prompt = "Number of inlet ports?", default = "1" }
+outlets = { type = "string", prompt = "Number of outlet ports?", default = "1" }

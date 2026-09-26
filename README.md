@@ -1,11 +1,76 @@
 # tpt-process
 
+[![CI](https://github.com/tpt-solutions/tpt-process/actions/workflows/ci.yml/badge.svg)](https://github.com/tpt-solutions/tpt-process/actions/workflows/ci.yml)
+[![License check](https://github.com/tpt-solutions/tpt-process/actions/workflows/license.yml/badge.svg)](https://github.com/tpt-solutions/tpt-process/actions/workflows/license.yml)
+[![Crates.io](https://img.shields.io/crates/v/tpt-proc-core.svg)](https://crates.io/crates/tpt-proc-core)
+[![docs.rs](https://docs.rs/tpt-proc-core/badge.svg)](https://docs.rs/tpt-proc-core)
+![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)
+![MSRV](https://img.shields.io/badge/MSRV-1.84-blue.svg)
+
 A fully open-source, MIT-licensed computational engine for chemical and process
 engineering: thermodynamics, fluid flow, heat transfer, separations, and
 reaction engineering.
 
 > **100% Open Source. Chemical & Process Engineering Without Vendor Lock-in.
 > No GPL Traps. No Desktop Monopolies.**
+
+## 5-Minute Quickstart
+
+Create a project and depend on the suite (published to crates.io at the next
+release; until then use the git dependency):
+
+```toml
+# Cargo.toml
+[dependencies]
+tpt-proc-core = { git = "https://github.com/tpt-solutions/tpt-process" }
+tpt-proc-thermo-core = { git = "https://github.com/tpt-solutions/tpt-process" }
+tpt-proc-thermo-database = { git = "https://github.com/tpt-solutions/tpt-process" }
+tpt-proc-thermo-eos = { git = "https://github.com/tpt-solutions/tpt-process" }
+tpt-proc-thermo-phase = { git = "https://github.com/tpt-solutions/tpt-process" }
+```
+
+Paste this into `src/main.rs` — a Peng-Robinson flash of a 50/50
+water/methanol feed at 350 K, 1 atm:
+
+```rust
+use std::sync::Arc;
+
+use tpt_proc_core::Composition;
+use tpt_proc_thermo_core::PropertyPackage;
+use tpt_proc_thermo_database::ChemicalDatabase;
+use tpt_proc_thermo_eos::CubicEos;
+use tpt_proc_thermo_phase::FlashSolver;
+
+fn main() {
+    let db = ChemicalDatabase::builtin();
+    let components = db.components_for(&["water", "methanol"]).unwrap();
+    let eos = CubicEos::peng_robinson(components.clone());
+    let package = PropertyPackage::new(components).unwrap().with_eos(Arc::new(eos));
+    let flash = FlashSolver::new(package);
+
+    let feed = Composition::from_mole_fractions(&[0.5, 0.5]).unwrap();
+    let result = flash.pt_flash(&feed, 350.0, 101_325.0).unwrap();
+
+    println!("Vapor fraction: {}", result.vapor_fraction);
+    println!("Vapor composition: {:?}", result.vapor_composition.as_slice());
+}
+```
+
+```sh
+cargo run
+# Vapor fraction: 0.55…
+```
+
+Prefer no Rust at all? The `tpt-proc` CLI runs a TOML-described flowsheet —
+mixers, splitters, flash drums, heaters, valves, pumps with recycles — see
+[crates/cli/tpt-proc](crates/cli/tpt-proc). Worked Rust examples live in
+[`examples/`](examples):
+
+```sh
+git clone https://github.com/tpt-solutions/tpt-process
+cd tpt-process
+cargo run --release -p example-flash-calculation
+```
 
 ## Why?
 
@@ -24,6 +89,14 @@ data behind recurring license fees. `tpt-process` breaks all three locks:
 
 ## Crates
 
+Status tiers reflect real coverage, not aspiration: **✅ Stable** = the
+implemented physics is textbook-benchmarked and the API is settled;
+**🧪 Beta** = solid for pre-design but model coverage is narrower than the
+domain (see each crate's README "Scope and limitations");
+**🚧 Alpha** = under active development; **🔗 Integration** = bridges into
+the other TPT substrate repositories, workspace-only (git dependency, never
+on crates.io).
+
 | Crate | Description | Status |
 |---|---|---|
 | `tpt-proc-core` | Core stream and unit types | ✅ Stable |
@@ -33,7 +106,7 @@ data behind recurring license fees. `tpt-process` breaks all three locks:
 | `tpt-proc-thermo-eos` | Peng-Robinson, SRK equations of state | ✅ Stable |
 | `tpt-proc-thermo-activity` | Wilson, NRTL, UNIQUAC, UNIFAC | ✅ Stable |
 | `tpt-proc-thermo-phase` | Flash calculations, VLE, bubble/dew point | ✅ Stable |
-| `tpt-proc-thermo-database` | Built-in chemical database | ✅ Stable |
+| `tpt-proc-thermo-database` | Built-in chemical database (51 components, sourced + gated) | ✅ Stable |
 | `tpt-proc-fluid` | Pipe flow, Darcy-Weisbach, Colebrook-White | ✅ Stable |
 | `tpt-proc-pumps` | Pump curves, operating point, affinity laws | ✅ Stable |
 | `tpt-proc-compressors` | Isentropic/polytropic compression | ✅ Stable |
@@ -45,63 +118,34 @@ data behind recurring license fees. `tpt-process` breaks all three locks:
 | `tpt-proc-fired-equipment` | Furnaces and fired heaters | ✅ Stable |
 | `tpt-proc-distillation` | McCabe-Thiele, FUG, rigorous MESH | ✅ Stable |
 | `tpt-proc-absorption` | Kremser absorption/stripping | ✅ Stable |
-| `tpt-proc-extraction` | Liquid-liquid extraction | ✅ Stable |
-| `tpt-proc-membranes` | Solution-diffusion membrane separations | ✅ Stable |
-| `tpt-proc-crystallization` | Cooling crystallization, MSMPR | ✅ Stable |
-| `tpt-proc-reaction` | Kinetics: Arrhenius, LHHW, Michaelis-Menten | ✅ Stable |
-| `tpt-proc-reactors` | Batch, CSTR, PFR, packed bed, fluidized bed | ✅ Stable |
-| `tpt-proc-catalysis` | Effectiveness factor, deactivation | ✅ Stable |
-| `tpt-proc-flowsheet` | Sequential modular + equation-oriented | ✅ Stable |
+| `tpt-proc-reaction` | Kinetics: Arrhenius, power law, LHHW, Michaelis-Menten | ✅ Stable |
 | `tpt-proc-mass-balance` | Balances and data reconciliation | ✅ Stable |
-| `tpt-proc-energy-balance` | Energy accounting and utility summary | ✅ Stable |
 | `tpt-proc-optimization` | Golden section, Nelder-Mead, gradient | ✅ Stable |
 | `tpt-proc-hvac` | Psychrometrics and air systems | ✅ Stable |
-| `tpt-proc-water` | Water treatment train simulation | ✅ Stable |
-| `tpt-proc-hydrogen` | Electrolysis, SMR, ATR | ✅ Stable |
-| `tpt-proc-dynamics` | Dynamic simulation, FOPDT, integrators | ✅ Stable |
-| `tpt-proc-control` | PID control and tuning | ✅ Stable |
-| `tpt-proc-pharma` | Pharmaceutical batch processes | ✅ Stable |
-| `tpt-proc-refining` | Refining stream characterization | ✅ Stable |
-| `tpt-proc-database` | General process data store | ✅ Stable |
-| `tpt-proc-pfd` | PFD representation and export (SVG/DOT) | ✅ Stable |
 | `tpt-proc-economics` | CAPEX/OPEX, NPV/IRR, levelized cost | ✅ Stable |
+| `tpt-proc-database` | General process data store | ✅ Stable |
+| `tpt-proc-extraction` | Liquid-liquid extraction | 🧪 Beta |
+| `tpt-proc-membranes` | Solution-diffusion membrane separations | 🧪 Beta |
+| `tpt-proc-crystallization` | Cooling crystallization, MSMPR | 🧪 Beta |
+| `tpt-proc-reactors` | Steady-state CSTR and PFR | 🧪 Beta |
+| `tpt-proc-catalysis` | Effectiveness factor, deactivation | 🧪 Beta |
+| `tpt-proc-flowsheet` | Sequential-modular solver, tear streams + Wegstein | 🧪 Beta |
+| `tpt-proc-energy-balance` | Energy accounting and utility summary | 🧪 Beta |
+| `tpt-proc-water` | Water treatment train simulation | 🧪 Beta |
+| `tpt-proc-pharma` | Pharmaceutical batch processes | 🧪 Beta |
+| `tpt-proc-refining` | Refining stream characterization | 🧪 Beta |
+| `tpt-proc-hydrogen` | Electrolysis, SMR, ATR | 🧪 Beta |
+| `tpt-proc-dynamics` | Dynamic simulation, FOPDT, integrators | 🧪 Beta |
+| `tpt-proc-control` | PID control and tuning | 🧪 Beta |
+| `tpt-proc-pfd` | PFD representation and export (SVG/DOT/Mermaid) | 🧪 Beta |
+| `tpt-proc` (CLI) | Config-driven flowsheet runner (TOML → JSON) | 🧪 Beta |
 | `tpt-proc-wasm` | WebAssembly bindings | 🚧 Alpha |
 | `tpt-proc-energy` | Pinch targets → `tpt-energy` system models | 🔗 Integration |
 | `tpt-proc-materials` | Streams → `tpt-materials` compositions | 🔗 Integration |
 | `tpt-proc-construction` | PFD → `tpt-construction` site/project | 🔗 Integration |
 
-## Quick Start
-
-```rust
-use std::sync::Arc;
-
-use tpt_proc_core::Composition;
-use tpt_proc_thermo_core::PropertyPackage;
-use tpt_proc_thermo_database::ChemicalDatabase;
-use tpt_proc_thermo_eos::CubicEos;
-use tpt_proc_thermo_phase::FlashSolver;
-
-// 50/50 water/methanol feed flashed at 350 K, 1 atm (Peng-Robinson).
-let db = ChemicalDatabase::builtin();
-let components = db.components_for(&["water", "methanol"]).unwrap();
-let eos = CubicEos::peng_robinson(components.clone());
-let package = PropertyPackage::new(components).unwrap().with_eos(Arc::new(eos));
-let flash = FlashSolver::new(package);
-
-let feed = Composition::from_mole_fractions(&[0.5, 0.5]).unwrap();
-let result = flash.pt_flash(&feed, 350.0, 101_325.0).unwrap();
-
-println!("Vapor fraction: {}", result.vapor_fraction);
-println!("Vapor composition: {:?}", result.vapor_composition.as_slice());
-```
-
-Run the worked examples:
-
-```sh
-git clone https://github.com/tpt-solutions/tpt-process
-cd tpt-process
-cargo run --release -p example-flash-calculation
-```
+Every crate has its own `README.md` (with scope-and-limitations) and
+`CHANGELOG.md` alongside its sources under [`crates/`](crates).
 
 ## Governance
 

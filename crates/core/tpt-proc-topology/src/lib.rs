@@ -164,9 +164,12 @@ impl ProcessGraph {
         let mut order = Vec::with_capacity(self.units.len());
         while let Some(u) = queue.pop_front() {
             order.push(u);
-            for v in &adj[&u] {
-                let d = indegree.get_mut(v).expect("successor is known");
-                *d -= 1;
+            for v in adj.get(&u).into_iter().flatten() {
+                // A successor is always in `indegree` (both maps are built
+                // from the same unit set); an unknown successor must not
+                // reach zero, so it starts from the max and saturates.
+                let d = indegree.entry(*v).or_insert(usize::MAX);
+                *d = d.saturating_sub(1);
                 if *d == 0 {
                     queue.push_back(*v);
                 }

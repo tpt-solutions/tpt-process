@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-flowsheet"
 description = "Sequential-modular flowsheet solver with tear streams and Wegstein acceleration"
+readme = "README.md"
+keywords = ["flowsheet", "sequential-modular", "tear-streams", "wegstein"]
+categories = ["science", "simulation", "algorithms"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

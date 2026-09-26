@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-reaction"
 description = "Part of the tpt-process reaction engineering domain"
+readme = "README.md"
+keywords = ["kinetics", "arrhenius", "langmuir-hinshelwood", "michaelis-menten"]
+categories = ["science", "simulation", "mathematics"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

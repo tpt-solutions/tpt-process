@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-optimization"
 description = "Golden section, Nelder-Mead, and gradient descent optimizers"
+readme = "README.md"
+keywords = ["optimization", "nelder-mead", "golden-section", "gradient-descent"]
+categories = ["science", "mathematics", "algorithms"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

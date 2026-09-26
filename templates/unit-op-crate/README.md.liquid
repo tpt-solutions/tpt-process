@@ -1,0 +1,30 @@
+# {{ project-name }}
+
+> A {{ unit_kind }} unit operation for the [tpt-process](https://github.com/tpt-solutions/tpt-process) suite.
+
+Scaffolded with `cargo generate --path templates/unit-op-crate` from the
+`tpt-process` repository. It implements [`UnitBehavior`] — the contract the
+flowsheet solver executes — so the unit registers into a `UnitRegistry` and
+runs inside any `tpt-process` flowsheet.
+
+## Fill in your physics
+
+Everything lives in `src/lib.rs` between the `BEGIN PHYSICS` / `END PHYSICS`
+markers. House rules (see CONTRIBUTING.md in tpt-process):
+
+- SI units everywhere; state that anything else in the docs.
+- No panics in library code: return `UnitError` (typed) instead.
+- Deterministic: same inputs, same outputs.
+- Keep the `ports_match_trait_contract`, `solve_returns_the_right_outlet_count`,
+  and `wrong_inlet_count_is_an_error_not_a_panic` tests passing.
+
+## Run the tests
+
+```sh
+cargo test
+```
+
+## License
+
+Licensed under either of Apache-2.0 or MIT at your option
+(LICENSE-APACHE / LICENSE-MIT).

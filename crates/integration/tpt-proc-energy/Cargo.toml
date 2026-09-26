@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-energy"
 description = "Bridge from tpt-process pinch/utility results into tpt-energy system models"
+readme = "README.md"
+keywords = ["energy-systems", "pinch-analysis", "chp", "integration"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

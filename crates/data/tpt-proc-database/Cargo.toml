@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-database"
 description = "General process data store"
+readme = "README.md"
+keywords = ["data-store", "time-series", "csv", "process-data"]
+categories = ["science", "data-structures"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

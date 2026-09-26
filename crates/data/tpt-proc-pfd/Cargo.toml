@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-pfd"
 description = "Process flow diagram representation and export"
+readme = "README.md"
+keywords = ["pfd", "svg", "graphviz", "mermaid", "diagram"]
+categories = ["science", "visualization"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

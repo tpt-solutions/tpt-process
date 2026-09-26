@@ -1,0 +1,21 @@
+[package]
+name = "example-pipe-network"
+description = "Worked example: pipe-network (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-pipe-network"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-fluid = { workspace = true }
+tpt-proc-network = { workspace = true }
+
+[lints]
+workspace = true

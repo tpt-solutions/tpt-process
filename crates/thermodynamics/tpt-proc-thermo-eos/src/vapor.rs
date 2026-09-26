@@ -36,13 +36,16 @@ pub fn pure_vapor_pressure(eos: &CubicEos, i: usize, temperature: f64) -> Result
     // g(P) = ln φ_liq − ln φ_vap: positive at low P, negative at high P.
     let residual = |p: f64| -> Result<f64> {
         let roots = eos.compressibility_roots(&pure, temperature, p)?;
-        if roots.len() < 2 {
-            return Err(ThermoError::Numeric(format!(
-                "single root at P={p}: outside the two-phase dome"
-            )));
-        }
-        let z_l = roots[0];
-        let z_v = *roots.last().expect("len >= 2");
+        // Liquid takes the smallest root, vapor the largest; the len ≥ 2
+        // guard excludes the single-root (subcooled/superheated) region.
+        let (z_l, z_v) = match (roots.first(), roots.last()) {
+            (Some(&l), Some(&v)) if roots.len() >= 2 => (l, v),
+            _ => {
+                return Err(ThermoError::Numeric(format!(
+                    "single root at P={p}: outside the two-phase dome"
+                )))
+            }
+        };
         let ln_l = eos.ln_phi_at_root(&pure, temperature, p, z_l)?[0];
         let ln_v = eos.ln_phi_at_root(&pure, temperature, p, z_v)?[0];
         Ok(ln_l - ln_v)

@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-refining"
 description = "Refining stream characterization"
+readme = "README.md"
+keywords = ["refining", "api-gravity", "watson-k", "crude-assay"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -13,7 +13,7 @@
 //! correlations, NIST WebBook summary values, and Smith–Van Ness–Abbott
 //! Appendix C heat capacities). They are **design-estimate grade**:
 //! critical constants are typically within experimental uncertainty, Cp
-//! fits within a few percent over 250–1000 K. ForLicenced final design,
+//! fits within a few percent over 250–1000 K. For licensed final design,
 //! validate against experiment or replace entries via
 //! [`ChemicalDatabase::register`]. Every entry is overridable; nothing is
 //! hard-coded in the physics crates.
@@ -453,6 +453,274 @@ fn builtin_components() -> Vec<Component> {
             307.60,
             cp(3.000, 39.000e-3, -12.500e-6, 0.0, 0.0),
         ),
+        // --- Additions (2026-09 review): see PROVENANCE.md for sources. ---
+        // Constant-Cp entries are frozen at 298.15 K ideal-gas values and
+        // flagged for a DIPPR-127 refit; scalar properties follow the
+        // standard DIPPR/NIST tabulations cited in PROVENANCE.md.
+        Component::new(
+            "helium",
+            "7440-59-7",
+            4.0026e-3,
+            5.1953,
+            2.276e5,
+            57.4e-6,
+            -0.390,
+            4.222,
+            CpCorrelation::constant(20.786),
+        ),
+        Component::new(
+            "argon",
+            "7440-37-1",
+            39.948e-3,
+            150.687,
+            4.863e6,
+            74.6e-6,
+            0.0,
+            87.302,
+            CpCorrelation::constant(20.786),
+        ),
+        Component::new(
+            "sulfur-dioxide",
+            "7446-09-5",
+            64.066e-3,
+            430.75,
+            7.884e6,
+            122.0e-6,
+            0.2454,
+            263.13,
+            CpCorrelation::constant(39.87),
+        ),
+        Component::new(
+            "acetylene",
+            "74-86-2",
+            26.038e-3,
+            308.3,
+            6.138e6,
+            112.0e-6,
+            0.187,
+            189.36,
+            CpCorrelation::constant(43.99),
+        ),
+        Component::new(
+            "1,3-butadiene",
+            "106-99-0",
+            54.091e-3,
+            425.0,
+            4.32e6,
+            220.0e-6,
+            0.195,
+            268.74,
+            CpCorrelation::constant(79.54),
+        ),
+        Component::new(
+            "isobutane",
+            "75-28-5",
+            58.123e-3,
+            407.81,
+            3.648e6,
+            262.7e-6,
+            0.182,
+            261.43,
+            CpCorrelation::constant(96.65),
+        ),
+        Component::new(
+            "cyclohexane",
+            "110-82-7",
+            84.161e-3,
+            553.78,
+            4.081e6,
+            308.0e-6,
+            0.212,
+            353.87,
+            CpCorrelation::constant(106.27),
+        ),
+        Component::new(
+            "n-nonane",
+            "111-84-2",
+            128.259e-3,
+            594.6,
+            2.289e6,
+            548.0e-6,
+            0.277,
+            423.94,
+            CpCorrelation::constant(211.7),
+        ),
+        Component::new(
+            "n-decane",
+            "124-18-5",
+            142.286e-3,
+            617.7,
+            2.11e6,
+            624.0e-6,
+            0.4923,
+            447.28,
+            CpCorrelation::constant(233.7),
+        ),
+        Component::new(
+            "acetic-acid",
+            "64-19-7",
+            60.052e-3,
+            591.95,
+            5.786e6,
+            171.0e-6,
+            0.4665,
+            391.05,
+            CpCorrelation::constant(66.25),
+        ),
+        Component::new(
+            "ethylene-glycol",
+            "107-21-1",
+            62.068e-3,
+            645.0,
+            7.53e6,
+            186.0e-6,
+            0.527,
+            470.45,
+            CpCorrelation::constant(87.9),
+        ),
+        Component::new(
+            "ethylene-oxide",
+            "75-21-8",
+            44.053e-3,
+            469.15,
+            7.194e6,
+            139.6e-6,
+            0.201,
+            283.85,
+            CpCorrelation::constant(48.2),
+        ),
+        Component::new(
+            "dimethyl-ether",
+            "115-10-6",
+            46.069e-3,
+            400.1,
+            5.37e6,
+            172.0e-6,
+            0.302,
+            248.35,
+            CpCorrelation::constant(65.6),
+        ),
+        Component::new(
+            "methyl-tert-butyl-ether",
+            "1634-04-4",
+            88.150e-3,
+            497.1,
+            3.43e6,
+            329.0e-6,
+            0.266,
+            328.35,
+            CpCorrelation::constant(120.4),
+        ),
+        Component::new(
+            "acetaldehyde",
+            "75-07-0",
+            44.053e-3,
+            466.0,
+            5.55e6,
+            154.0e-6,
+            0.2907,
+            293.25,
+            CpCorrelation::constant(55.4),
+        ),
+        Component::new(
+            "1-butanol",
+            "71-36-3",
+            74.123e-3,
+            563.05,
+            4.423e6,
+            274.0e-6,
+            0.59,
+            390.85,
+            CpCorrelation::constant(109.9),
+        ),
+        Component::new(
+            "isopropanol",
+            "67-63-0",
+            60.096e-3,
+            508.31,
+            4.764e6,
+            220.0e-6,
+            0.667,
+            355.45,
+            CpCorrelation::constant(89.3),
+        ),
+        Component::new(
+            "ethylbenzene",
+            "100-41-4",
+            106.167e-3,
+            617.15,
+            3.609e6,
+            374.0e-6,
+            0.304,
+            409.35,
+            CpCorrelation::constant(127.9),
+        ),
+        Component::new(
+            "m-xylene",
+            "108-38-3",
+            106.167e-3,
+            617.05,
+            3.541e6,
+            376.0e-6,
+            0.331,
+            412.25,
+            CpCorrelation::constant(127.5),
+        ),
+        Component::new(
+            "p-xylene",
+            "106-42-3",
+            106.167e-3,
+            616.2,
+            3.511e6,
+            379.0e-6,
+            0.322,
+            411.35,
+            CpCorrelation::constant(126.9),
+        ),
+        Component::new(
+            "o-xylene",
+            "95-47-6",
+            106.167e-3,
+            630.3,
+            3.732e6,
+            369.0e-6,
+            0.312,
+            417.35,
+            CpCorrelation::constant(133.3),
+        ),
+        Component::new(
+            "acetonitrile",
+            "75-05-8",
+            41.053e-3,
+            545.5,
+            4.83e6,
+            173.5e-6,
+            0.338,
+            354.75,
+            CpCorrelation::constant(52.2),
+        ),
+        Component::new(
+            "tetrahydrofuran",
+            "109-99-9",
+            72.107e-3,
+            540.15,
+            5.19e6,
+            224.0e-6,
+            0.281,
+            339.15,
+            CpCorrelation::constant(79.5),
+        ),
+        Component::new(
+            "naphthalene",
+            "91-20-3",
+            128.174e-3,
+            748.4,
+            4.05e6,
+            413.0e-6,
+            0.302,
+            491.14,
+            CpCorrelation::constant(132.2),
+        ),
     ]
 }
 
@@ -563,6 +831,125 @@ mod tests {
             component
                 .validate()
                 .unwrap_or_else(|e| panic!("{name}: {e}"));
+        }
+    }
+}
+
+#[cfg(test)]
+mod database_gate {
+    use super::*;
+
+    /// Accuracy gate: canonical, human-readable rendering of every built-in
+    /// entry (scalars plus Cp coefficients). `test-data/golden/thermodynamics/
+    /// database-baseline.txt` is committed; CI compares it against this
+    /// rendering, so any added or changed database entry shows up as a review
+    /// request instead of landing silently. See `PROVENANCE.md` for the
+    /// per-entry source documentation the review checks against.
+    fn canonical_database_text() -> String {
+        let db = ChemicalDatabase::builtin();
+        let mut out = String::from(
+        "# tpt-process built-in chemical database baseline.\n\
+         # Regenerate with: TPT_UPDATE_DB_BASELINE=1 cargo test -p tpt-proc-thermo-database -- --ignored update_database_baseline\n\
+         # Every diff must be reviewed against PROVENANCE.md (source + verification per entry).\n\
+         # name | CAS | MW kg/mol | Tc K | Pc Pa | Vc m3/mol | omega | Tb K | Cp/R coefficients a b c d e\n",
+    );
+        for name in db.component_names() {
+            let c = &db.components[&name];
+            let cp = &c.ideal_gas_cp;
+            out.push_str(&format!(
+            "{} | {} | {:.4e} | {:.4} | {:.4e} | {:.4e} | {:.5} | {:.4} | {:.6} {:.6} {:.6} {:.6} {:.6}\n",
+            c.name,
+            c.cas_number,
+            c.molecular_weight,
+            c.critical_temperature,
+            c.critical_pressure,
+            c.critical_volume,
+            c.acentric_factor,
+            c.normal_boiling_point,
+            cp.a,
+            cp.b,
+            cp.c,
+            cp.d,
+            cp.e,
+        ));
+        }
+        out
+    }
+
+    fn baseline_path() -> std::path::PathBuf {
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../test-data/golden/thermodynamics/database-baseline.txt")
+    }
+
+    #[test]
+    fn database_matches_reviewed_baseline() {
+        let current = canonical_database_text();
+        let path = baseline_path();
+        let baseline = std::fs::read_to_string(&path).unwrap_or_else(|e| {
+            panic!(
+                "cannot read {}: {e}; regenerate with TPT_UPDATE_DB_BASELINE=1 \
+             cargo test -p tpt-proc-thermo-database -- --ignored update_database_baseline",
+                path.display()
+            )
+        });
+        assert_eq!(
+            baseline, current,
+            "the built-in chemical database changed: review the diff against \
+         PROVENANCE.md (two-source verification per property), then \
+         regenerate the baseline consciously with TPT_UPDATE_DB_BASELINE=1"
+        );
+    }
+
+    #[test]
+    #[ignore = "writes the baseline file; run explicitly with TPT_UPDATE_DB_BASELINE=1"]
+    fn update_database_baseline() {
+        if std::env::var("TPT_UPDATE_DB_BASELINE").is_err() {
+            panic!(
+                "refusing to overwrite the baseline without \
+             TPT_UPDATE_DB_BASELINE=1 (review PROVENANCE.md first)"
+            );
+        }
+        let path = baseline_path();
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(&path, canonical_database_text()).unwrap();
+        println!("baseline written to {}", path.display());
+    }
+
+    #[test]
+    fn database_entries_are_physically_plausible() {
+        let db = ChemicalDatabase::builtin();
+        assert!(
+            db.len() >= 50,
+            "expected the expanded database, got {}",
+            db.len()
+        );
+        for name in db.component_names() {
+            let c = &db.components[&name];
+            assert!(
+                c.molecular_weight > 0.0 && c.molecular_weight < 1.0,
+                "{name}: MW"
+            );
+            assert!(
+                c.critical_temperature > 1.0 && c.critical_temperature < 2_500.0,
+                "{name}: Tc"
+            );
+            assert!(
+                c.critical_pressure > 1.0e4 && c.critical_pressure < 5.0e8,
+                "{name}: Pc"
+            );
+            assert!(
+                c.critical_volume > 1.0e-6 && c.critical_volume < 2.0e-3,
+                "{name}: Vc"
+            );
+            assert!((-1.0..2.0).contains(&c.acentric_factor), "{name}: omega");
+            assert!(
+                c.normal_boiling_point > 0.0
+                    && c.normal_boiling_point < c.critical_temperature * 1.05,
+                "{name}: Tb vs Tc"
+            );
+            assert!(c.ideal_gas_cp.a.is_finite(), "{name}: Cp a");
         }
     }
 }

@@ -1,6 +1,7 @@
 [package]
 name = "tpt-proc-thermo-phase"
 description = "Phase equilibrium and flash calculations: PT/PH flash, Rachford-Rice, bubble and dew point"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

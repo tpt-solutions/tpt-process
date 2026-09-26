@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-hvac"
 description = "Psychrometrics and air-side HVAC calculations"
+readme = "README.md"
+keywords = ["psychrometrics", "hvac", "moist-air", "dew-point", "humidity"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

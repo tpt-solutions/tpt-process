@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-reactors"
 description = "Reactor models: batch, CSTR, PFR, packed bed with energy balance"
+readme = "README.md"
+keywords = ["reactor", "cstr", "pfr", "packed-bed", "fluidized-bed"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

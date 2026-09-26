@@ -9,6 +9,7 @@
 use crate::error::{CoreError, Result};
 
 /// Basis of the fractions stored in a [`Composition`].
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum CompositionBasis {
     /// Mole fractions (default; required by most solvers).
@@ -21,6 +22,7 @@ pub enum CompositionBasis {
 }
 
 /// Composition of a mixture as fractions over the package component list.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, PartialEq, Debug, Default)]
 pub struct Composition {
     fractions: Vec<f64>,

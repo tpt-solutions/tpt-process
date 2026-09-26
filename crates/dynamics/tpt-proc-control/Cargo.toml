@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-control"
 description = "PID control and tuning rules"
+readme = "README.md"
+keywords = ["pid", "pid-tuning", "ziegler-nichols", "anti-windup"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

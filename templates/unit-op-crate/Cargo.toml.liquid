@@ -1,0 +1,24 @@
+[package]
+name = "{{ project-name }}"
+description = "{{ project-name }}: a unit operation for the tpt-process suite"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.84"
+license = "MIT OR Apache-2.0"
+authors = ["{{ authors }}"]
+repository = "https://github.com/tpt-solutions/{{ project-name }}"
+readme = "README.md"
+keywords = ["process-engineering", "chemical-engineering", "unit-operation"]
+categories = ["science", "simulation"]
+
+[dependencies]
+tpt-proc-core = { git = "https://github.com/tpt-solutions/tpt-process" }
+tpt-proc-units = { git = "https://github.com/tpt-solutions/tpt-process" }
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

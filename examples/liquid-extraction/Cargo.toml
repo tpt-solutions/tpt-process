@@ -1,0 +1,20 @@
+[package]
+name = "example-liquid-extraction"
+description = "Worked example: liquid-extraction (tpt-process suite)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "example-liquid-extraction"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-extraction = { workspace = true }
+
+[lints]
+workspace = true

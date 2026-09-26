@@ -1,0 +1,31 @@
+[package]
+name = "tpt-proc"
+description = "Config-driven flowsheet runner CLI for the tpt-process engine: TOML flowsheet in, JSON results out"
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["cli", "flowsheet", "process-engineering", "simulation"]
+categories = ["science", "simulation", "command-line-utilities"]
+
+[[bin]]
+name = "tpt-proc"
+path = "src/main.rs"
+
+[dependencies]
+tpt-proc-core = { workspace = true, features = ["serde"] }
+tpt-proc-units = { workspace = true }
+tpt-proc-flowsheet = { workspace = true }
+tpt-proc-thermo-core = { workspace = true }
+tpt-proc-thermo-database = { workspace = true }
+tpt-proc-thermo-eos = { workspace = true }
+tpt-proc-thermo-phase = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+toml = "0.9"
+
+[lints]
+workspace = true

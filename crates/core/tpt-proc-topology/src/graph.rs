@@ -79,8 +79,12 @@ impl TarjanState {
                     self.on_stack.insert(successor);
                     frames.push((successor, 0));
                 } else if self.on_stack.contains(&successor) {
-                    let s_index = self.index[&successor];
-                    let l = self.lowlink.get_mut(&node).expect("visited");
+                    let s_index = self
+                        .index
+                        .get(&successor)
+                        .copied()
+                        .unwrap_or(self.next_index);
+                    let l = self.lowlink.entry(node).or_insert(s_index);
                     if s_index < *l {
                         *l = s_index;
                     }
@@ -90,13 +94,15 @@ impl TarjanState {
                 // lowlink to the parent.
                 frames.pop();
                 if let Some(&(parent, _)) = frames.last() {
-                    let l = self.lowlink[&node];
-                    let parent_low = self.lowlink.get_mut(&parent).expect("visited");
+                    let l = self.lowlink.get(&node).copied().unwrap_or(usize::MAX);
+                    let parent_low = self.lowlink.entry(parent).or_insert(l);
                     if l < *parent_low {
                         *parent_low = l;
                     }
                 }
-                if self.lowlink[&node] == self.index[&node] {
+                let node_low = self.lowlink.get(&node).copied().unwrap_or(usize::MAX);
+                let node_index = self.index.get(&node).copied().unwrap_or(usize::MAX);
+                if node_low == node_index {
                     let mut component = Vec::new();
                     while let Some(top) = self.stack.pop() {
                         self.on_stack.remove(&top);

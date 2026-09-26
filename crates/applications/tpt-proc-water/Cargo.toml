@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-water"
 description = "Water treatment train simulation: coagulation to reverse osmosis"
+readme = "README.md"
+keywords = ["water-treatment", "reverse-osmosis", "coagulation", "ion-exchange"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

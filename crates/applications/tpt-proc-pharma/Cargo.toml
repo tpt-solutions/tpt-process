@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-pharma"
 description = "Pharmaceutical batch process models"
+readme = "README.md"
+keywords = ["pharmaceutical", "batch-process", "shelf-life", "dissolution"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

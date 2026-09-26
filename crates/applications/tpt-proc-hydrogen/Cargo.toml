@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-hydrogen"
 description = "Hydrogen production: electrolysis, SMR, ATR energy models"
+readme = "README.md"
+keywords = ["hydrogen", "electrolysis", "smr", "reforming"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

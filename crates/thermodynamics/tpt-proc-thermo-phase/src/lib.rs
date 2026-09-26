@@ -75,13 +75,16 @@ impl FlashSolver {
     }
 
     /// Convenience constructor: Peng-Robinson package from a component list.
-    #[must_use]
-    pub fn peng_robinson(components: Vec<Component>, mixing: MixingRule) -> Self {
+    ///
+    /// # Errors
+    /// [`FlashError::Thermo`] when component validation fails.
+    pub fn peng_robinson(
+        components: Vec<Component>,
+        mixing: MixingRule,
+    ) -> Result<Self, FlashError> {
         let eos = CubicEos::peng_robinson(components.clone()).with_mixing_rule(mixing);
-        let package = PropertyPackage::new(components)
-            .expect("components validated at EOS construction")
-            .with_eos(Arc::new(eos));
-        Self::new(package)
+        let package = PropertyPackage::new(components)?.with_eos(Arc::new(eos));
+        Ok(Self::new(package))
     }
 
     /// The property package backing this solver.
@@ -462,13 +465,15 @@ mod tests {
         let db = ChemicalDatabase::builtin();
         let components = db.components_for(&["benzene", "toluene"]).unwrap();
         FlashSolver::peng_robinson(components, MixingRule::VanDerWaals)
+            .expect("benzene/toluene components are valid")
     }
 
     #[test]
     fn pure_water_at_saturation_is_degenerate_half_vapor() {
         let db = ChemicalDatabase::builtin();
         let components = db.components_for(&["water"]).unwrap();
-        let flash = FlashSolver::peng_robinson(components, MixingRule::VanDerWaals);
+        let flash = FlashSolver::peng_robinson(components, MixingRule::VanDerWaals)
+            .expect("water component is valid");
         let feed = Composition::from_mole_fractions(&[1.0]).unwrap();
         let result = flash.pt_flash(&feed, 373.15, 101_325.0).unwrap();
         assert!(result.degenerate);

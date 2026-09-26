@@ -35,16 +35,25 @@ use tpt_mat_core::{Composition, CompositionBasis};
 /// A chemical formula: (element symbol, stoichiometric count) pairs.
 pub type Formula<'a> = &'a [(&'a str, u32)];
 
+/// Atomic weights (kg/kmol) for the elements hard-coded into the
+/// precursor models. The [`molar_mass`] table reuses these constants so
+/// the precursor math and the lookup can never drift apart.
+const M_HYDROGEN: f64 = 1.008;
+const M_OXYGEN: f64 = 15.999;
+const M_MANGANESE: f64 = 54.938;
+const M_COBALT: f64 = 58.933;
+const M_NICKEL: f64 = 58.693;
+
 /// Molar masses, kg/kmol (g/mol) for the elements used by process
 /// species. Values are IUPAC standard atomic weights, rounded to 4
 /// decimals.
 #[must_use]
 pub fn molar_mass(element: &str) -> Option<f64> {
     Some(match element {
-        "H" => 1.008,
+        "H" => M_HYDROGEN,
         "C" => 12.011,
         "N" => 14.007,
-        "O" => 15.999,
+        "O" => M_OXYGEN,
         "Na" => 22.990,
         "Mg" => 24.305,
         "Al" => 26.982,
@@ -54,10 +63,10 @@ pub fn molar_mass(element: &str) -> Option<f64> {
         "Ca" => 40.078,
         "Ti" => 47.867,
         "Cr" => 51.996,
-        "Mn" => 54.938,
+        "Mn" => M_MANGANESE,
         "Fe" => 55.845,
-        "Co" => 58.933,
-        "Ni" => 58.693,
+        "Co" => M_COBALT,
+        "Ni" => M_NICKEL,
         "Cu" => 63.546,
         "Zn" => 65.38,
         "Li" => 6.94,
@@ -89,13 +98,18 @@ pub fn formula(pairs: Formula) -> Result<(BTreeMap<String, f64>, f64), String> {
 /// # Errors
 /// Propagates [`formula`] errors.
 pub fn formula_weight_fractions(pairs: Formula) -> Result<BTreeMap<String, f64>, String> {
-    let (map, mass) = formula(pairs)?;
     let mut fractions = BTreeMap::new();
-    for (element, count) in &map {
-        fractions.insert(
-            element.clone(),
-            count * molar_mass(element).expect("validated above") / mass,
-        );
+    let mut mass = 0.0;
+    for &(element, count) in pairs {
+        let m = molar_mass(element).ok_or_else(|| format!("unknown element {element:?}"))?;
+        *fractions.entry(element.to_string()).or_insert(0.0) += f64::from(count) * m;
+        mass += m * f64::from(count);
+    }
+    if mass <= 0.0 {
+        return Err("empty formula".into());
+    }
+    for value in fractions.values_mut() {
+        *value /= mass;
     }
     Ok(fractions)
 }
@@ -168,10 +182,8 @@ impl PrecursorDesign {
     /// Molar mass of M(OH)₂ for the metal ratio, kg/kmol.
     #[must_use]
     pub fn molar_mass(&self) -> f64 {
-        let metal = self.nickel * molar_mass("Ni").expect("Ni")
-            + self.manganese * molar_mass("Mn").expect("Mn")
-            + self.cobalt * molar_mass("Co").expect("Co");
-        metal + 2.0 * molar_mass("O").expect("O") + 2.0 * molar_mass("H").expect("H")
+        let metal = self.nickel * M_NICKEL + self.manganese * M_MANGANESE + self.cobalt * M_COBALT;
+        metal + 2.0 * M_OXYGEN + 2.0 * M_HYDROGEN
     }
 
     /// Element weight fractions of M(OH)₂.
@@ -182,20 +194,11 @@ impl PrecursorDesign {
     pub fn target_composition(&self) -> Result<Composition, tpt_mat_core::CompositionError> {
         let mass = self.molar_mass();
         let mut elements = BTreeMap::new();
-        elements.insert(
-            "Ni".to_string(),
-            self.nickel * molar_mass("Ni").expect("Ni") / mass,
-        );
-        elements.insert(
-            "Mn".to_string(),
-            self.manganese * molar_mass("Mn").expect("Mn") / mass,
-        );
-        elements.insert(
-            "Co".to_string(),
-            self.cobalt * molar_mass("Co").expect("Co") / mass,
-        );
-        elements.insert("O".to_string(), 2.0 * molar_mass("O").expect("O") / mass);
-        elements.insert("H".to_string(), 2.0 * molar_mass("H").expect("H") / mass);
+        elements.insert("Ni".to_string(), self.nickel * M_NICKEL / mass);
+        elements.insert("Mn".to_string(), self.manganese * M_MANGANESE / mass);
+        elements.insert("Co".to_string(), self.cobalt * M_COBALT / mass);
+        elements.insert("O".to_string(), 2.0 * M_OXYGEN / mass);
+        elements.insert("H".to_string(), 2.0 * M_HYDROGEN / mass);
         to_material_composition(&elements)
     }
 

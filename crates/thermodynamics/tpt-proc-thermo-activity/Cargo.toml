@@ -1,6 +1,7 @@
 [package]
 name = "tpt-proc-thermo-activity"
 description = "Activity coefficient models: Wilson, NRTL, UNIQUAC, UNIFAC"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

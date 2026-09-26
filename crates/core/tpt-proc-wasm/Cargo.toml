@@ -1,12 +1,15 @@
 [package]
 name = "tpt-proc-wasm"
 description = "WebAssembly bindings for the tpt-process engineering suite"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
+keywords = ["wasm", "webassembly", "bindings", "process-engineering"]
+categories = ["wasm", "science", "simulation"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]

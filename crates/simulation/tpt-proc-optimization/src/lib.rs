@@ -86,7 +86,11 @@ pub fn nelder_mead(
         vertices = order.iter().map(|&i| vertices[i].clone()).collect();
         values = order.iter().map(|&i| values[i]).collect();
 
-        if (values.last().expect("non-empty") - values[0]).abs() < tolerance {
+        let spread = values
+            .last()
+            .zip(values.first())
+            .map_or(f64::INFINITY, |(worst, best)| worst - best);
+        if spread.abs() < tolerance {
             break;
         }
 

@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-dynamics"
 description = "Dynamic simulation"
+readme = "README.md"
+keywords = ["dynamic-simulation", "rk4", "fopdt", "step-response"]
+categories = ["science", "simulation", "mathematics"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

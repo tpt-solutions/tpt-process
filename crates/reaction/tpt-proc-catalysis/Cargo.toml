@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-catalysis"
 description = "Part of the tpt-process reaction engineering domain"
+readme = "README.md"
+keywords = ["catalyst", "effectiveness-factor", "deactivation", "thiele-modulus"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

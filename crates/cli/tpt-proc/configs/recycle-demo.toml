@@ -1,0 +1,76 @@
+# tpt-proc demo: a methanol/water recycle loop.
+#
+# feed(100 mol/s) → mixer → heater(360 K) → splitter [0.8, 0.2]
+#                   ↑———————— recycle (20 %) ←—————————
+#
+# Steady state: mixer out = 100 + 0.2 × out → 125 mol/s;
+# product = 100 mol/s, recycle ≈ 25 mol/s.
+#
+# Run: cargo run -p tpt-proc -- run crates/cli/tpt-proc/configs/recycle-demo.toml
+
+[flowsheet]
+id = 1
+name = "recycle demo"
+
+[thermo]
+components = ["water", "methanol"]
+eos = "peng-robinson"
+
+[[streams]]
+id = 1
+name = "fresh feed"
+temperature_k = 350.0
+pressure_pa = 101325.0
+molar_flow_mol_s = 100.0
+mole_fractions = [0.5, 0.5]
+
+[[units]]
+kind = "mixer"
+id = 10
+inlets = 2
+
+[[units]]
+kind = "heater"
+id = 11
+temperature_k = 360.0
+
+[[units]]
+kind = "splitter"
+id = 12
+ratios = [0.8, 0.2]
+
+# Fresh feed into mixer inlet 0.
+[[connections]]
+stream = 1
+to_unit = 10
+to_port = 0
+
+# Mixer outlet → heater.
+[[connections]]
+stream = 21
+from_unit = 10
+from_port = 0
+to_unit = 11
+to_port = 0
+
+# Heater outlet → splitter.
+[[connections]]
+stream = 22
+from_unit = 11
+from_port = 0
+to_unit = 12
+to_port = 0
+
+# Splitter product (80 %).
+[[connections]]
+stream = 23
+from_unit = 12
+from_port = 0
+
+# Splitter recycle (20 %) back to mixer inlet 1.
+[[connections]]
+stream = 24
+from_unit = 12
+from_port = 1
+to_unit = 10
+to_port = 1

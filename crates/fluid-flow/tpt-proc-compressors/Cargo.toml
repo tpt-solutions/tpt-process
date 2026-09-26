@@ -1,14 +1,15 @@
 [package]
 name = "tpt-proc-compressors"
 description = "Gas compression: isentropic and polytropic head, work, discharge temperature"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-keywords = ["compressor", "gas", "process-engineering"]
-categories = ["science"]
+keywords = ["compressor", "isentropic", "polytropic", "compression"]
+categories = ["science", "simulation"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

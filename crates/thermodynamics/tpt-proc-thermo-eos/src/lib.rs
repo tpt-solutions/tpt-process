@@ -393,7 +393,8 @@ impl CubicEos {
     /// Selects the compressibility root for a phase selection.
     ///
     /// # Errors
-    /// Propagates [`CubicEos::compressibility_roots`].
+    /// Propagates [`CubicEos::compressibility_roots`];
+    /// [`ThermoError::Numeric`] when no root exists.
     pub fn select_root(
         &self,
         composition: &Composition,
@@ -401,16 +402,17 @@ impl CubicEos {
         pressure: f64,
         selection: PhaseSelection,
     ) -> Result<f64> {
+        let no_root = || ThermoError::Numeric("no compressibility root".into());
         let roots = self.compressibility_roots(composition, temperature, pressure)?;
         match selection {
-            PhaseSelection::Vapor => Ok(*roots.last().expect("non-empty")),
-            PhaseSelection::Liquid => Ok(roots[0]),
+            PhaseSelection::Vapor => roots.last().copied().ok_or_else(no_root),
+            PhaseSelection::Liquid => roots.first().copied().ok_or_else(no_root),
             PhaseSelection::Stable => {
+                let z_l = roots.first().copied().ok_or_else(no_root)?;
                 if roots.len() == 1 {
-                    return Ok(roots[0]);
+                    return Ok(z_l);
                 }
-                let z_l = roots[0];
-                let z_v = *roots.last().expect("non-empty");
+                let z_v = roots.last().copied().ok_or_else(no_root)?;
                 let g_l = self.ln_phi_mixture(composition, temperature, pressure, z_l);
                 let g_v = self.ln_phi_mixture(composition, temperature, pressure, z_v);
                 if g_v <= g_l {

@@ -157,7 +157,10 @@ impl PinchAnalysis {
     /// Problem table algorithm: shifted-temperature heat cascade.
     ///
     /// Returns (interval temperatures descending, cumulative cascade flux
-    /// at each interval top, pinch interval index).
+    /// at each interval top, pinch interval index). With no streams the
+    /// sentinels below keep the function total; the cascade degenerates to
+    /// zero duty, matching [`Self::minimum_utilities`]'s empty-input
+    /// early return.
     fn cascade(&self) -> (Vec<f64>, Vec<f64>, usize, f64) {
         // Shift: hot − ΔT_min/2, cold + ΔT_min/2.
         let mut temps: Vec<f64> = self
@@ -180,11 +183,12 @@ impl PinchAnalysis {
         temps.dedup();
 
         // Net heat capacity flow per shifted interval.
-        let mut interval_cp: Vec<f64> = vec![0.0; temps.len() - 1];
+        let mut interval_cp: Vec<f64> = vec![0.0; temps.len().saturating_sub(1)];
+        let hottest = temps.first().copied().unwrap_or(f64::INFINITY);
+        let coldest = temps.last().copied().unwrap_or(f64::NEG_INFINITY);
         for s in &self.hot {
-            let top = (s.supply_temp - self.delta_t_min / 2.0).min(temps[0]);
-            let bottom =
-                (s.target_temp - self.delta_t_min / 2.0).max(*temps.last().expect("non-empty"));
+            let top = (s.supply_temp - self.delta_t_min / 2.0).min(hottest);
+            let bottom = (s.target_temp - self.delta_t_min / 2.0).max(coldest);
             for (i, window) in temps.windows(2).enumerate() {
                 let (hi, lo) = (window[0], window[1]);
                 if hi < bottom || lo > top {
@@ -198,9 +202,8 @@ impl PinchAnalysis {
             }
         }
         for s in &self.cold {
-            let top = (s.target_temp + self.delta_t_min / 2.0).min(temps[0]);
-            let bottom =
-                (s.supply_temp + self.delta_t_min / 2.0).max(*temps.last().expect("non-empty"));
+            let top = (s.target_temp + self.delta_t_min / 2.0).min(hottest);
+            let bottom = (s.supply_temp + self.delta_t_min / 2.0).max(coldest);
             for (i, window) in temps.windows(2).enumerate() {
                 let (hi, lo) = (window[0], window[1]);
                 if hi < bottom || lo > top {
@@ -246,8 +249,8 @@ impl PinchAnalysis {
             };
         }
         let (temps, flux, pinch_interval, min_flux_raw) = self.cascade();
-        let q_h_min = flux[0];
-        let q_c_min = *flux.last().expect("non-empty");
+        let q_h_min = flux.first().copied().unwrap_or(0.0);
+        let q_c_min = flux.last().copied().unwrap_or(0.0);
         // A pinch exists only when the unadjusted cascade dips negative
         // at an interior boundary; threshold problems have no pinch.
         let (pinch_hot, pinch_cold) = if min_flux_raw < -1e-9 && pinch_interval > 0 {

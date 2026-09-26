@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-economics"
 description = "Process economics"
+readme = "README.md"
+keywords = ["capex", "opex", "npv", "irr", "levelized-cost"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

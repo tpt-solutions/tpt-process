@@ -1,6 +1,7 @@
 [package]
 name = "tpt-proc-topology"
 description = "Process flow diagram graph analysis: recycle detection, topological ordering, tear streams, connected components"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

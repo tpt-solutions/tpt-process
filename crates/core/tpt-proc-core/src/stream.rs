@@ -4,6 +4,7 @@ use crate::composition::Composition;
 use crate::error::{CoreError, Result};
 
 /// Flow specification of a material stream.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum FlowRate {
     /// Mass flow, kg/s.
@@ -25,6 +26,7 @@ impl FlowRate {
 }
 
 /// Phase classification of a stream.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum PhaseState {
     /// Single liquid phase.
@@ -53,23 +55,51 @@ impl PhaseState {
 /// Transport and thermodynamic properties attached to a stream.
 ///
 /// All fields are SI. Unset fields are `NaN` so accidental use of a
-/// property that was never computed is loud, not silent.
+/// property that was never computed is loud, not silent. When serialized
+/// (with the `serde` feature) unset fields are written as `null` and read
+/// back as `NaN`, so JSON round-trips never carry a bare `NaN`.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct StreamProperties {
     /// Specific enthalpy, J/mol.
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub enthalpy: f64,
     /// Specific entropy, J/(mol·K).
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub entropy: f64,
     /// Density, kg/m³.
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub density: f64,
     /// Dynamic viscosity, Pa·s.
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub viscosity: f64,
     /// Thermal conductivity, W/(m·K).
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub thermal_conductivity: f64,
     /// Heat capacity, J/(mol·K).
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub heat_capacity: f64,
     /// Compressibility factor Z = P·v/(R·T).
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pub compressibility: f64,
+}
+
+/// Serialization helpers mapping the NaN "unset" sentinel to `null`.
+#[cfg(feature = "serde")]
+mod maybe_finite {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub(super) fn serialize<S: Serializer>(v: &f64, s: S) -> Result<S::Ok, S::Error> {
+        if v.is_finite() {
+            s.serialize_some(v)
+        } else {
+            s.serialize_none()
+        }
+    }
+
+    pub(super) fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<f64, D::Error> {
+        Ok(Option::<f64>::deserialize(d)?.unwrap_or(f64::NAN))
+    }
 }
 
 impl Default for StreamProperties {
@@ -104,11 +134,14 @@ impl StreamProperties {
 ///
 /// Temperature is in K, pressure in Pa, and the composition is aligned with
 /// the property package's component list.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct MaterialStream {
     id: crate::ids::StreamId,
     name: String,
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     temperature: f64,
+    #[cfg_attr(feature = "serde", serde(with = "maybe_finite"))]
     pressure: f64,
     flow_rate: Option<FlowRate>,
     composition: Option<Composition>,

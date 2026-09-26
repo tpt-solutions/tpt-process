@@ -1,6 +1,9 @@
 [package]
 name = "tpt-proc-materials"
 description = "Bridge from tpt-process streams and reactor designs into tpt-materials compositions"
+readme = "README.md"
+keywords = ["materials", "battery", "composition", "nmc"]
+categories = ["science", "simulation"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

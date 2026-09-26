@@ -1,14 +1,15 @@
 [package]
 name = "tpt-proc-valves"
 description = "Control valve sizing: Cv/Kv, liquid and gas flow, inherent characteristics"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-keywords = ["valve", "control", "process-engineering"]
-categories = ["science"]
+keywords = ["control-valve", "cv", "kv", "sizing"]
+categories = ["science", "simulation"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

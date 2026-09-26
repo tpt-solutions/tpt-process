@@ -1,12 +1,15 @@
 [package]
 name = "tpt-proc-fluid"
 description = "Part of the tpt-process fluid flow domain"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
+keywords = ["pipe-flow", "friction-factor", "darcy-weisbach", "colebrook", "reynolds"]
+categories = ["science", "simulation"]
 
 [dependencies]
 tpt-proc-core = { workspace = true }

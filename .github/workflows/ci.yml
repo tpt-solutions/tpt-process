@@ -69,3 +69,22 @@ jobs:
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
       - run: cargo build -p tpt-proc-wasm --target wasm32-unknown-unknown
+
+  coverage:
+    name: Coverage (llvm-cov + Codecov)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate coverage (unit + doc tests)
+        run: |
+          cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
+          cargo llvm-cov --doc --workspace --all-features --lcov --output-path lcov-doc.info
+      - uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info,lcov-doc.info
+          fail_ci_if_error: false

@@ -1,6 +1,7 @@
 [package]
 name = "tpt-proc-units"
 description = "Unit operation scaffolding: behavior trait, ports, mixer and splitter reference models, unit registry"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
