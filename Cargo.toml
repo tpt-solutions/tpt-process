@@ -79,10 +79,9 @@ members = [
 ]
 
 # Daily commands (`cargo build`, `cargo test`, …) operate on the core suite
-# only. The `crates/integration/*` bridges depend on git-pinned TPT
-# substrate repositories that are not reachable in CI (private/unpublished),
-# so they are deliberately opt-in and excluded from CI: build or test them
-# locally with `cargo build --workspace`, `-p tpt-proc-energy`, and so on.
+# only. The `crates/integration/*` bridges pull in the TPT substrate repos
+# (tpt-energy, tpt-materials, tpt-construction) and are opt-in: build or test
+# them explicitly with `cargo build --workspace`, `-p tpt-proc-energy`, etc.
 default-members = [
     # Domain 1: Core & topology
     "crates/core/tpt-proc-core",

@@ -17,9 +17,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-deny
       - name: Check license chain (MIT OR Apache-2.0 only)
         run: |
-          cargo deny check --workspace \
-            --exclude tpt-proc-energy --exclude tpt-proc-materials --exclude tpt-proc-construction \
-            licenses bans sources
+          cargo deny check --workspace licenses bans sources
 
   cargo-deny-advisories:
     name: cargo deny (security advisories)
