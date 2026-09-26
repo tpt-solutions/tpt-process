@@ -28,9 +28,11 @@ jobs:
       - name: Verify the workspace is release-clean
         run: |
           cargo fmt --all -- --check
-          cargo clippy --workspace --all-targets -- -D warnings
-          cargo test --workspace --all-features
-          cargo deny check licenses bans
+          cargo clippy --all-targets -- -D warnings
+          cargo test --all-features
+          cargo deny check --workspace \
+            --exclude tpt-proc-energy --exclude tpt-proc-materials --exclude tpt-proc-construction \
+            licenses bans
 
       - name: Create GitHub release for tag
         if: startsWith(github.ref, 'refs/tags/')

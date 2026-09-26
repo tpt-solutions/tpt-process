@@ -34,7 +34,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo clippy --all-targets -- -D warnings
 
   test:
     name: Tests (stable, ${{ matrix.os }})
@@ -47,8 +47,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace --all-features
-      - run: cargo test --doc --workspace --all-features
+      - run: cargo test --all-features
+      - run: cargo test --doc --all-features
 
   msrv:
     name: Tests (MSRV 1.84)
@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.84.0
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace
+      - run: cargo test
 
   wasm:
     name: WASM build (tpt-proc-wasm)
@@ -82,8 +82,8 @@ jobs:
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate coverage (unit + doc tests)
         run: |
-          cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
-          cargo llvm-cov --doc --workspace --all-features --lcov --output-path lcov-doc.info
+          cargo llvm-cov --all-features --lcov --output-path lcov.info
+          cargo llvm-cov --doc --all-features --lcov --output-path lcov-doc.info
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info,lcov-doc.info

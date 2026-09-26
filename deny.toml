@@ -20,15 +20,8 @@ allow = [
     "Unicode-3.0",
     "CDLA-Permissive-2.0",
 ]
-# Reject copyleft licenses (GPL, AGPL, MPL, EPL, ...).
-copyleft = "deny"
-unlicensed = "deny"
-allow-osi-fsf-free = "neither"
-default = "deny"
-
-[[licenses.clarify]]
-name = "unicode-ident"
-expression = "(MIT OR Apache-2.0) AND Unicode-3.0"
+# Everything not in `allow` above (copyleft licenses, unlicensed crates, ...)
+# is denied by default under the v2 schema.
 
 [bans]
 multiple-versions = "warn"

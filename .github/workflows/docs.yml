@@ -27,7 +27,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build rustdoc for the workspace
-        run: cargo doc --workspace --all-features --no-deps
+        run: cargo doc --all-features --no-deps
       - name: Assemble documentation site
         run: |
           mkdir -p site

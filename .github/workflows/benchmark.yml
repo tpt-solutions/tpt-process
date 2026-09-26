@@ -18,7 +18,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Run all benchmarks (reduced sample time for CI)
-        run: cargo bench --workspace -- --measurement-time 2 --warm-up-time 0.5
+        run: cargo bench -- --measurement-time 2 --warm-up-time 0.5
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:

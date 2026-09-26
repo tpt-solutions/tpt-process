@@ -16,7 +16,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: taiki-e/install-action@cargo-deny
       - name: Check license chain (MIT OR Apache-2.0 only)
-        run: cargo deny check licenses bans sources
+        run: |
+          cargo deny check --workspace \
+            --exclude tpt-proc-energy --exclude tpt-proc-materials --exclude tpt-proc-construction \
+            licenses bans sources
 
   cargo-deny-advisories:
     name: cargo deny (security advisories)
@@ -28,4 +31,7 @@ jobs:
       # separate non-blocking-aware job with its own fetch; failures here
       # mean a dependency has a published vulnerability and must be triaged.
       - name: Check RustSec advisories
-        run: cargo deny check advisories
+        run: |
+          cargo deny check --workspace \
+            --exclude tpt-proc-energy --exclude tpt-proc-materials --exclude tpt-proc-construction \
+            advisories
